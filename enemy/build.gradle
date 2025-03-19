@@ -1,0 +1,15 @@
+plugins {
+  id 'java'
+}
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = appName + '-enemy'
+
+dependencies {
+  api "com.badlogicgames.ashley:ashley:$ashleyVersion"
+  implementation project(':core')
+
+  if(enableGraalNative == 'true') {
+    implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
+  }
+}

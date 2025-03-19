@@ -36,6 +36,12 @@ dependencies {
   implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   implementation project(':core')
+  if (project.findProject(":player") != null) {
+    implementation project(":player")
+  }
+  if (project.findProject(":enemy") != null) {
+    implementation project(":player")
+  }
   implementation("com.badlogicgames.gdx:gdx-tools:$gdxVersion"){exclude group: 'com.badlogicgames.gdx', module: 'gdx-backend-lwjgl'}
 
   if(enableGraalNative == 'true') {
