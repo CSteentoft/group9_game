@@ -1,60 +1,43 @@
 package io.github.group9;
 
 import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.utils.ScreenUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
-    private Texture walkSheet;
-    private Animation<TextureRegion> walkAnimation;
-    private float stateTime;
-
-    private static final int FRAME_COLS = 8, FRAME_ROWS = 1; // Adjust based on your sprite sheet
+    private List<Rendering> animations; // Store multiple animations
 
     @Override
     public void create() {
         batch = new SpriteBatch();
-        walkSheet = new Texture(Gdx.files.internal("Player_run.png")); // Make sure this exists
+        animations = new ArrayList<>();
 
-        // Split the sprite sheet into individual frames
-        TextureRegion[][] tmp = TextureRegion.split(walkSheet,
-            walkSheet.getWidth() / FRAME_COLS,
-            walkSheet.getHeight() / FRAME_ROWS);
-
-        TextureRegion[] walkFrames = new TextureRegion[FRAME_COLS * FRAME_ROWS];
-        int index = 0;
-        for (int i = 0; i < FRAME_ROWS; i++) {
-            for (int j = 0; j < FRAME_COLS; j++) {
-                walkFrames[index++] = tmp[i][j];
-            }
-        }
-
-        // Initialize animation with frame interval
-        walkAnimation = new Animation<>(.066f, walkFrames);
-        stateTime = 0f;
+        // Add multiple animations
+        animations.add(new Rendering("Punch_cross.png", 7, 1, 140, 210));
+        animations.add(new Rendering("Player_hurt.png", 4, 1, 200, 210));
     }
 
     @Override
     public void render() {
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-        stateTime += Gdx.graphics.getDeltaTime(); // Track animation time
-
-        TextureRegion currentFrame = walkAnimation.getKeyFrame(stateTime, true); // Loop animation
+        ScreenUtils.clear(0, 0, 0, 1); // Clear screen before drawing anything
 
         batch.begin();
-        batch.draw(currentFrame, 140, 210);
+        for (Rendering animation : animations) {
+            animation.render(batch);
+        }
         batch.end();
     }
+
 
     @Override
     public void dispose() {
         batch.dispose();
-        walkSheet.dispose();
+        for (Rendering animation : animations) {
+            animation.dispose();
+        }
     }
 }
