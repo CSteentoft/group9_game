@@ -1,0 +1,14 @@
+plugins {
+  id 'java'
+}
+
+eclipse.project.name = appName + '-commonFighter'
+
+dependencies {
+  api "com.badlogicgames.ashley:ashley:$ashleyVersion"
+  implementation project(':core')
+
+  if(enableGraalNative == 'true') {
+    implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
+  }
+}

@@ -34,7 +34,8 @@ public class Main extends ApplicationAdapter {
         // Create animations: arguments: file name, columns, rows, default x, default y
         animations.add(new Rendering("Player_idle.png", 10, 1, 0, 0));   // Idle
         animations.add(new Rendering("Player_run.png", 8, 1, 50, 0));      // Run
-        animations.add(new Rendering("Player_jump.png", 6, 1, 100, 30));   // Jump
+        animations.add(new Rendering("Player_jump.png", 6, 1, 100, 0));
+        animations.add(new Rendering("Punch_cross.png", 7, 1, 100, 0));
 
         // Start with idle animation
         currentAnimation = animations.get(0);
@@ -124,6 +125,12 @@ public class Main extends ApplicationAdapter {
             if (!isJumping) {
                 currentAnimation = animations.get(1);
             }
+        } else if (Gdx.input.isKeyPressed(Input.Keys.E)) {
+            xSpeed = 0;
+            facingLeft = false;
+            if (!isJumping) {
+                currentAnimation = animations.get(3);
+            }
         } else {
             // No horizontal input: stop horizontal movement.
             xSpeed = 0;
@@ -131,6 +138,7 @@ public class Main extends ApplicationAdapter {
                 currentAnimation = animations.get(0); // Idle animation
             }
         }
+
     }
 
     @Override
