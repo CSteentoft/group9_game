@@ -1,4 +1,4 @@
-package io.github.group9;
+package org.example;
 
 import com.badlogic.gdx.math.Vector2;
 import java.io.Serializable;
@@ -7,7 +7,7 @@ import java.util.UUID;
 public class Entity implements Serializable {
     private final UUID id = UUID.randomUUID();
     private Vector2 position;
-
+    private boolean isFlipped;
     public String getID() {
         return id.toString();
     }
@@ -20,3 +20,4 @@ public class Entity implements Serializable {
         this.position = position;
     }
 }
+

@@ -4,4 +4,6 @@
 include 'lwjgl3', 'core'
 include 'CommonFighter'
 include 'Player'
+include 'Common'
+include 'Rend'
 

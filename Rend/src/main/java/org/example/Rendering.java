@@ -1,4 +1,4 @@
-package io.github.group9;
+package org.example;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -40,6 +40,11 @@ public class Rendering {
         // Use a fixed frame duration (0.066f seconds)
         animation = new Animation<>(0.066f, frames);
         stateTime = 0f;
+    }
+
+    // Getter for stateTime
+    public float getStateTime() {
+        return stateTime;
     }
 
     // Call this to flip the animation horizontally if needed.
