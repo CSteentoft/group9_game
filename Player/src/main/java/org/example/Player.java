@@ -25,10 +25,12 @@ public class Player extends Entity implements ICommonFighter {
 
     // Jumping variables
     private boolean isJumping = false;
-    private float jumpVelocity = 600f;  // Lower the jump velocity to reduce floating
-    private float gravity = -2300f;  // Increased gravity to make the player fall faster
-    private float verticalVelocity = 10f;  // Current vertical velocity
-    private float groundLevel = 0;  // Ground level for the player
+    private float x, y; // Position of the player
+    private float velocityY = 0; // Vertical velocity
+    private static final float GRAVITY = -3000f; // Acceleration due to gravity
+    private static final float JUMP_VELOCITY = 800f; // Initial velocity for the jump
+    private static final float FLOOR_Y = 0; // Ground level
+    private static final float TERMINAL_VELOCITY = -1000f; // Max downward speed
 
     @Override
     public boolean isAlive() {
@@ -97,31 +99,39 @@ public class Player extends Entity implements ICommonFighter {
     @Override
     public void jump() {
         if (!isJumping) {  // Allow jumping only when not already jumping
+            velocityY = JUMP_VELOCITY;
             isJumping = true;
-            verticalVelocity = jumpVelocity;  // Set the vertical velocity to jump velocity
+        }
+    }
+    public void updateJump() {
+        float deltaTime = Gdx.graphics.getDeltaTime();
+
+        // Apply gravity
+        velocityY += GRAVITY * deltaTime;
+
+        // Limit fall speed to TERMINAL_VELOCITY
+        if (velocityY < TERMINAL_VELOCITY) {
+            velocityY = TERMINAL_VELOCITY;
+        }
+
+        // Update position
+        entity.getPosition().y += velocityY * deltaTime;
+
+        // Ground collision
+        if (entity.getPosition().y <= FLOOR_Y) {
+            entity.getPosition().y = FLOOR_Y;
+            velocityY = 0;
+            isJumping = false;
         }
     }
 
     public void update() {
-        System.out.println(entity.getPosition().y);
         float deltaTime = Gdx.graphics.getDeltaTime();
 
         // Handle horizontal movement (left-right)
         handleInput();  // Handle user input for movement
 
-        // Update vertical position for jumping
-        if (isJumping) {
-            verticalVelocity += gravity * deltaTime;  // Apply gravity to vertical velocity
-            entity.getPosition().y += verticalVelocity * deltaTime;  // Update the player's vertical position
-
-            // Check if the player has reached the ground level
-            if (entity.getPosition().y <= groundLevel) {
-                entity.getPosition().y = groundLevel;  // Keep player at ground level
-                isJumping = false;  // End the jump
-                verticalVelocity = 0;  // Reset vertical velocity
-                currentAnimation = animations.get(0);  // Switch back to idle animation
-            }
-        }
+        updateJump();
 
         if (currentAnimation != null) {
             // Update animation with new position
