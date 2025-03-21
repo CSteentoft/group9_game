@@ -7,7 +7,7 @@ import java.util.UUID;
 public class Entity implements Serializable {
     private final UUID id = UUID.randomUUID();
     private Vector2 position;
-    private boolean isFlipped;
+
     public String getID() {
         return id.toString();
     }
