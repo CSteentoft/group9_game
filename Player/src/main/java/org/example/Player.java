@@ -234,9 +234,16 @@ public class Player extends Entity implements ICommonFighter {
         currentAnimation.setStateTime(newStateTime);
 
         // End the dash after DASH_DURATION seconds.
-        if (dashTime >= DASH_DURATION) {
+        if ((dashTime >= DASH_DURATION) && isJumping) {
             isDashing = false;
+            currentAnimation = animations.get(2);
             currentAnimation.setStateTime(0);
+            System.out.println(isJumping+ "2");
+        } else if (dashTime >= DASH_DURATION) {
+            isDashing = false;
+            currentAnimation = animations.get(2);
+            currentAnimation.setStateTime(0);
+            System.out.println(isJumping+ "1");
         }
     }
 
