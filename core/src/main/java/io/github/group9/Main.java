@@ -28,5 +28,6 @@ public class Main extends ApplicationAdapter {
     @Override
     public void dispose() {
         batch.dispose();  // Dispose of resources when done
+        player.dispose();
     }
 }
