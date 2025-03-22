@@ -29,7 +29,7 @@ public class Player extends Entity implements ICommonFighter {
     private boolean isDashing = false;
     private float velocityY = 0; // Vertical velocity
     private static final float GRAVITY = -1300f; // Acceleration due to gravity -3000
-    private static final float JUMP_VELOCITY = 850f; // Initial velocity for the jump
+    private static final float JUMP_VELOCITY = 450f; // Initial velocity for the jump
     private static final float FLOOR_Y = -5; // Ground level
     private static final float TERMINAL_VELOCITY = -1000f; // Max downward speed
     private boolean isFlipped;
@@ -204,7 +204,7 @@ public class Player extends Entity implements ICommonFighter {
 
     private float dashTime = 0f;
     private static final float DASH_DURATION = 0.25f;
-    private static final float DASH_SPEED = 1000f;
+    private static final float DASH_SPEED = 350f;
 
     public void dash() {
         if (!isDashing) {
