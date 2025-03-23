@@ -26,6 +26,7 @@ public class Player extends Entity implements ICommonFighter {
 
     // Jumping variables
     private boolean isJumping = false;
+    private int jumpCount = 0;
     private boolean isDashing = false;
     private float velocityY = 0; // Vertical velocity
     private static final float GRAVITY = -1300f; // Acceleration due to gravity -3000
@@ -79,10 +80,12 @@ public class Player extends Entity implements ICommonFighter {
         entity.setPosition(new Vector2(0, 0));
 
         animations = new ArrayList<>();
-        animations.add(new Rendering("Player_idle.png", 10, 1, entity.getPosition().x, entity.getPosition().y)); // Idle
-        animations.add(new Rendering("Player_run.png", 8, 1, entity.getPosition().x, entity.getPosition().y));   // Run
-        animations.add(new Rendering("Player_jump.png", 6, 1, entity.getPosition().x, entity.getPosition().y));  // Jump
-        animations.add(new Rendering("Player_dash.png", 9, 1, entity.getPosition().x, entity.getPosition().y));  // Dash
+        animations.add(new Rendering("Player_idle.png", 10, 1, entity.getPosition().x, entity.getPosition().y)); // 0 Idle
+        animations.add(new Rendering("Player_run.png", 8, 1, entity.getPosition().x, entity.getPosition().y));   // 1 Run
+        animations.add(new Rendering("Player_jump.png", 6, 1, entity.getPosition().x, entity.getPosition().y));  // 2 Jump
+        animations.add(new Rendering("Player_dash.png", 9, 1, entity.getPosition().x, entity.getPosition().y));  // 3 Dash
+        animations.add(new Rendering("Player_airspin.png", 6, 1, entity.getPosition().x, entity.getPosition().y));  // 4 Double Jump
+
 
         currentAnimation = animations.get(0);  // Default to idle animation
         isFlipped = false;
@@ -129,7 +132,7 @@ public class Player extends Entity implements ICommonFighter {
             dash();
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             jump();
         }
     }
@@ -149,10 +152,17 @@ public class Player extends Entity implements ICommonFighter {
     }
     @Override
     public void jump() {
-        if (!isJumping) {
+        if (jumpCount < 2) {
             velocityY = JUMP_VELOCITY;
+            jumpCount++;
             isJumping = true;
-            currentAnimation = animations.get(2);
+
+            if(jumpCount == 1){ // Normal Jump
+                currentAnimation = animations.get(2);
+            } else if( jumpCount == 2){ // Double Jump
+                currentAnimation = animations.get(4);
+            }
+
             currentAnimation.setStateTime(0);
         }
     }
@@ -176,6 +186,7 @@ public class Player extends Entity implements ICommonFighter {
             entity.getPosition().y = FLOOR_Y;
             velocityY = 0;
             isJumping = false;
+            jumpCount = 0;
             currentAnimation = animations.get(0);  // Back to idle (or another appropriate animation)
         }
 
@@ -185,22 +196,32 @@ public class Player extends Entity implements ICommonFighter {
         //stateTime = how long the animation has been running (like a stopwatch).
         //FRAME_DURATION = how long each frame is displayed before switching to the next.
         //frameIndex = which frame should be shown.
-        if (velocityY > 0) { // Rising: allow the first two frames only
-            float newTime = currentAnimation.getStateTime() + deltaTime;
-            if (newTime > 1 * currentAnimation.getFRAME_DURATION()) {
-                newTime = 1 * currentAnimation.getFRAME_DURATION();
+        if (jumpCount == 1) {
+            if (velocityY > 0) { // Rising: allow the first two frames only
+                float newTime = currentAnimation.getStateTime() + deltaTime;
+                if (newTime > 1 * currentAnimation.getFRAME_DURATION()) {
+                    newTime = 1 * currentAnimation.getFRAME_DURATION();
+                }
+                currentAnimation.setStateTime(newTime);
+            } else {
+                if (currentAnimation.getStateTime() >= currentAnimation.getAnimationDuration()) {
+                    currentAnimation.setStateTime(currentAnimation.getAnimationDuration());
+                } else {
+                    currentAnimation.setStateTime(currentAnimation.getStateTime() + deltaTime);
+                }
             }
-            currentAnimation.setStateTime(newTime);
-        } else {
-            if (currentAnimation.getStateTime() >= currentAnimation.getAnimationDuration()) {
+        }
+        else if (jumpCount == 2) {
+            float newTime = currentAnimation.getStateTime() + deltaTime;
+            // If the airspin animation hasn't finished, keep updating it.
+           if (newTime < currentAnimation.getAnimationDuration()) {
+                currentAnimation.setStateTime(newTime);
+            }  else {
+                // Alternative falling animation
                 currentAnimation.setStateTime(currentAnimation.getAnimationDuration());
-            }else {
-                currentAnimation.setStateTime(currentAnimation.getStateTime() + deltaTime);
             }
         }
     }
-
-
 
     private float dashTime = 0f;
     private static final float DASH_DURATION = 0.25f;
