@@ -25,6 +25,7 @@ public class Main extends ApplicationAdapter {
         batch = new SpriteBatch();
         gameCamera = new GameCamera(640, 360, player.getPosition().x, player.getPosition().y, true);
         gameMap = new GameMap(gameCamera.getCamera(), "TEST.tmx");
+        gameMap.generateEntitiesForTiles();
     }
 
     @Override
@@ -47,7 +48,9 @@ public class Main extends ApplicationAdapter {
         batch.end();
 
         player.renderHurtBox(batch);
-        gameMap.renderHurtBox(batch);
+        gameMap.renderAllHurtBoxes(batch);
+
+
     }
 
     @Override

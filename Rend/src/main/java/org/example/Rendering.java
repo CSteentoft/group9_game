@@ -81,13 +81,13 @@ public class Rendering {
         TextureRegion currentFrame = animation.getKeyFrame(stateTime, true);
         batch.draw(currentFrame, posX, posY);
     }
-    public void drawHurtBox(SpriteBatch batch, Rectangle hurtBox) {
+    public void drawCollisionBox(SpriteBatch batch, Rectangle hurtBox, int red, int green, int blue) {
         // Set the ShapeRenderer's projection matrix from the SpriteBatch
         shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 
         // Draw the rectangle using the ShapeRenderer
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.setColor(red, green, blue,1);
         shapeRenderer.rect(hurtBox.x, hurtBox.y, hurtBox.width, hurtBox.height);
         shapeRenderer.end();
     }

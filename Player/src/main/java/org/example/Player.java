@@ -83,10 +83,10 @@ public class Player extends Entity implements ICommonFighter {
     //Completed
     //------------------------------------------------------------------------------------------------------------
     public Player() {
-        rendering = new Rendering("Player_idle.png", 10, 1, 0, 0);
+        rendering = new Rendering();
 
         entity = new Entity();
-        entity.setPosition(new Vector2(0, 0));
+        entity.setPosition(new Vector2(-50, 0));
         entity.setHurtBox(new Rectangle(entity.getPosition().x, entity.getPosition().y + (playerHeight * -1), playerWidth, playerHeight));
 
 
@@ -130,7 +130,7 @@ public class Player extends Entity implements ICommonFighter {
         }
     }
     public void renderHurtBox(SpriteBatch batch) {
-        rendering.drawHurtBox(batch, entity.getHurtBox());
+        rendering.drawCollisionBox(batch, entity.getHurtBox(), 1, 0, 0);
     }
 
 
