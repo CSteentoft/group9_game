@@ -268,6 +268,10 @@ public class Player extends Entity implements ICommonFighter {
         }
     }
 
+    public Vector2 getPosition() {
+        return entity.getPosition();
+    }
+
     public void dispose() {
         rendering.dispose();  // Dispose of the rendering object (which will dispose of the sprite sheet texture)
     }
