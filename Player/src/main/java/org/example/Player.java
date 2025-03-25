@@ -76,9 +76,9 @@ public class Player extends Entity implements ICommonFighter {
         this.stat = stats;
     }
 
-    public Rectangle getHurtbox(){
-        return entity.getHurtBox();
-    }
+//    public Rectangle getHurtbox(){
+//        return entity.getHurtBox();
+//    }
 
     //Completed
     //------------------------------------------------------------------------------------------------------------
@@ -89,8 +89,6 @@ public class Player extends Entity implements ICommonFighter {
         entity.setPosition(new Vector2(0, 0));
         entity.setHurtBox(new Rectangle(entity.getPosition().x, entity.getPosition().y + (playerHeight * -1), playerWidth, playerHeight));
 
-        entityTest = new Entity();
-        entityTest.setHurtBox(new Rectangle(50, 0, 48, 48));
 
         animations = new ArrayList<>();
         animations.add(new Rendering("Player_idle.png", 10, 1, entity.getPosition().x, entity.getPosition().y)); // 0 Idle

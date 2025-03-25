@@ -47,6 +47,7 @@ public class Main extends ApplicationAdapter {
         batch.end();
 
         player.renderHurtBox(batch);
+        gameMap.renderHurtBox(batch);
     }
 
     @Override

@@ -43,6 +43,10 @@ public class Rendering {
         stateTime = 0f;
     }
 
+    public Rendering() {
+        shapeRenderer = new ShapeRenderer();
+    }
+
     public float getAnimationDuration() {
         return animation.getAnimationDuration() - animation.getFrameDuration();
     }
