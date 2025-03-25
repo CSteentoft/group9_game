@@ -7,4 +7,6 @@ include 'Player'
 include 'Common'
 include 'Rend'
 include 'GameCamera'
+include 'CollisionSystem'
+include 'GameMap'
 

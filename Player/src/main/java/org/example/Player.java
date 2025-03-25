@@ -3,13 +3,14 @@ package org.example;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Player extends Entity implements ICommonFighter {
-    protected Entity entity;
+    protected Entity entity, entityTest;
     protected Rendering rendering;
     protected boolean isAttacking = false;
     protected boolean isMoving = false;
@@ -35,6 +36,9 @@ public class Player extends Entity implements ICommonFighter {
     private static final float TERMINAL_VELOCITY = -1000f; // Max downward speed
     private boolean isFlipped;
     private static final float speed = 200; // Movement speed in units per second (adjust as needed)
+
+    private int playerWidth = 24;
+    private int playerHeight = -35;
 
     @Override
     public boolean isAlive() {
@@ -72,12 +76,21 @@ public class Player extends Entity implements ICommonFighter {
         this.stat = stats;
     }
 
+    public Rectangle getHurtbox(){
+        return entity.getHurtBox();
+    }
 
     //Completed
     //------------------------------------------------------------------------------------------------------------
     public Player() {
+        rendering = new Rendering("Player_idle.png", 10, 1, 0, 0);
+
         entity = new Entity();
         entity.setPosition(new Vector2(0, 0));
+        entity.setHurtBox(new Rectangle(entity.getPosition().x, entity.getPosition().y + (playerHeight * -1), playerWidth, playerHeight));
+
+        entityTest = new Entity();
+        entityTest.setHurtBox(new Rectangle(50, 0, 48, 48));
 
         animations = new ArrayList<>();
         animations.add(new Rendering("Player_idle.png", 10, 1, entity.getPosition().x, entity.getPosition().y)); // 0 Idle
@@ -108,12 +121,21 @@ public class Player extends Entity implements ICommonFighter {
             currentAnimation.setStateTime(currentAnimation.getStateTime() + deltaTime);
             currentAnimation.setFlip(isFlipped);
         }
+
+        // Update hurtbox position
+        entity.setHurtBox(new Rectangle(entity.getPosition().x + 12, entity.getPosition().y + 43, playerWidth, playerHeight));
     }
+
     public void render(SpriteBatch batch) {
-        if (currentAnimation != null) {
-            currentAnimation.render(batch);  // Render the current animation
+        if (currentAnimation != null) {// Ensure batch is started
+            currentAnimation.render(batch);
         }
     }
+    public void renderHurtBox(SpriteBatch batch) {
+        rendering.drawHurtBox(batch, entity.getHurtBox());
+    }
+
+
     public void handleInput() {
         int horizontalInput = 0;
 

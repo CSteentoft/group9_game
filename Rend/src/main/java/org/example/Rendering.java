@@ -5,6 +5,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Rectangle;
 
 public class Rendering {
     private Animation<TextureRegion> animation;
@@ -13,14 +16,15 @@ public class Rendering {
     private float frameDuration = 0.066f;
     private float posX, posY; // Position
     private TextureRegion[] frames; // Save frames (for flipping, etc.)
-    private boolean flipped; // current horizontal flip state
-
+    private boolean flipped; // Current horizontal flip state
+    private ShapeRenderer shapeRenderer; // For drawing collision box
 
     public Rendering(String spriteSheetPath, int frameCols, int frameRows, float x, float y) {
         spriteSheet = new Texture(Gdx.files.internal(spriteSheetPath));
         posX = x;
         posY = y;
         flipped = false;
+        shapeRenderer = new ShapeRenderer();
 
         // Split the sprite sheet into frames
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
@@ -39,19 +43,18 @@ public class Rendering {
         stateTime = 0f;
     }
 
-    public float getAnimationDuration(){
+    public float getAnimationDuration() {
         return animation.getAnimationDuration() - animation.getFrameDuration();
     }
-    public float getFRAME_DURATION(){
+
+    public float getFRAME_DURATION() {
         return animation.getFrameDuration();
     }
 
-    // Getter for stateTime
     public float getStateTime() {
         return stateTime;
     }
 
-    // Call this to flip the animation horizontally if needed.
     public void setFlip(boolean flip) {
         if (flip != flipped) {
             for (TextureRegion frame : frames) {
@@ -61,14 +64,10 @@ public class Rendering {
         }
     }
 
-    // Allow external code (Main) to override stateTime (for jump animation)
     public void setStateTime(float newTime) {
         stateTime = newTime;
     }
 
-    // When not under external control (for normal animations)
-
-    // Set the position for rendering
     public void setPosition(float x, float y) {
         this.posX = x;
         this.posY = y;
@@ -78,8 +77,19 @@ public class Rendering {
         TextureRegion currentFrame = animation.getKeyFrame(stateTime, true);
         batch.draw(currentFrame, posX, posY);
     }
+    public void drawHurtBox(SpriteBatch batch, Rectangle hurtBox) {
+        // Set the ShapeRenderer's projection matrix from the SpriteBatch
+        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+
+        // Draw the rectangle using the ShapeRenderer
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.rect(hurtBox.x, hurtBox.y, hurtBox.width, hurtBox.height);
+        shapeRenderer.end();
+    }
 
     public void dispose() {
         spriteSheet.dispose();
+        shapeRenderer.dispose();
     }
 }
