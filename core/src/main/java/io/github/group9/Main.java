@@ -24,8 +24,10 @@ public class Main extends ApplicationAdapter {
     public void render() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);  // Clears the screen with the current background color
 
-        gameCamera.setCameraPos(player.getPosition().x, player.getPosition().y);
-        batch.setProjectionMatrix(gameCamera.getCamera().combined);
+        if (gameCamera.isFollowingPLayer()){
+            gameCamera.setCameraPos(player.getPosition().x, player.getPosition().y);
+            batch.setProjectionMatrix(gameCamera.getCamera().combined);
+        }
 
         batch.begin();
         player.update();  // Update player state (including handling input)
