@@ -38,7 +38,7 @@ public class Player extends Entity implements ICommonFighter {
     private static final float speed = 200; // Movement speed in units per second (adjust as needed)
 
     private int playerWidth = 24;
-    private int playerHeight = -35;
+    private int playerHeight = -30;
 
     @Override
     public boolean isAlive() {
@@ -121,7 +121,7 @@ public class Player extends Entity implements ICommonFighter {
         }
 
         // Update hurtbox position
-        entity.setHurtBox(new Rectangle(entity.getPosition().x + 12, entity.getPosition().y + 43, playerWidth, playerHeight));
+        entity.setHurtBox(new Rectangle(entity.getPosition().x + 12, entity.getPosition().y + 38, playerWidth, playerHeight));
     }
 
     public void render(SpriteBatch batch) {
