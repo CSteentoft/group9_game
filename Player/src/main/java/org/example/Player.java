@@ -113,6 +113,7 @@ public class Player extends Entity implements ICommonFighter {
         if (isDashing) {
             updateDash();
         }
+        gravity();
 
         if (currentAnimation != null) {
             currentAnimation.setPosition(entity.getPosition().x, entity.getPosition().y);
@@ -121,7 +122,7 @@ public class Player extends Entity implements ICommonFighter {
         }
 
         // Update setCollisionBox position
-        entity.setCollisionBox(new Rectangle(entity.getPosition().x + 12, entity.getPosition().y + 8, playerWidth, playerHeight));
+        updateCollisionBox();
     }
 
     public void render(SpriteBatch batch) {
@@ -188,28 +189,6 @@ public class Player extends Entity implements ICommonFighter {
     }
     public void updateJump() {
         float deltaTime = Gdx.graphics.getDeltaTime();
-
-        // Apply gravity
-        //--------------------------------------------------------------------------------------------------
-        velocityY += GRAVITY * deltaTime;
-
-        // Limit fall speed to TERMINAL_VELOCITY
-        if (velocityY < TERMINAL_VELOCITY) {
-            velocityY = TERMINAL_VELOCITY;
-        }
-
-        entity.getPosition().y += velocityY * deltaTime;
-
-        // Ground collision
-        //--------------------------------------------------------------------------------------------------
-        if (entity.getPosition().y <= FLOOR_Y) {
-            entity.getPosition().y = FLOOR_Y;
-            velocityY = 0;
-            isJumping = false;
-            jumpCount = 0;
-            currentAnimation = animations.get(0);  // Back to idle (or another appropriate animation)
-        }
-
         //Animation
         //--------------------------------------------------------------------------------------------------
         //this is how libgdx calculates frameIndex "int frameIndex = (int)(stateTime / FRAME_DURATION);"
@@ -240,6 +219,30 @@ public class Player extends Entity implements ICommonFighter {
                 // Alternative falling animation
                 currentAnimation.setStateTime(currentAnimation.getAnimationDuration());
             }
+        }
+    }
+
+    public void gravity(){
+        // Apply gravity
+        float deltaTime = Gdx.graphics.getDeltaTime();
+        //--------------------------------------------------------------------------------------------------
+        velocityY += GRAVITY * deltaTime;
+
+        // Limit fall speed to TERMINAL_VELOCITY
+        if (velocityY < TERMINAL_VELOCITY) {
+            velocityY = TERMINAL_VELOCITY;
+        }
+
+        entity.getPosition().y += velocityY * deltaTime;
+
+        // Ground collision
+        //--------------------------------------------------------------------------------------------------
+        if (entity.getPosition().y <= FLOOR_Y) {
+            entity.getPosition().y = FLOOR_Y;
+            velocityY = 0;
+            isJumping = false;
+            jumpCount = 0;
+            currentAnimation = animations.get(0);  // Back to idle (or another appropriate animation)
         }
     }
 
@@ -293,6 +296,21 @@ public class Player extends Entity implements ICommonFighter {
     }
     public Rectangle getHurtBox(){
         return entity.getCollisionBox();
+    }
+
+    private void updateCollisionBox() {
+        entity.setCollisionBox(new Rectangle(
+            entity.getPosition().x + 12,
+            entity.getPosition().y + 8,
+            playerWidth,
+            playerHeight
+        ));
+    }
+
+    public void shiftPosition(float shiftX, float shiftY) {
+        entity.getPosition().add(shiftX, shiftY);
+        updateCollisionBox();
+        isJumping = false;
     }
 
     public void dispose() {
