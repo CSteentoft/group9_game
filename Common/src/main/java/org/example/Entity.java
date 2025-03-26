@@ -26,11 +26,11 @@ public class Entity implements Serializable {
         this.position = position;
     }
 
-    public void setHurtBox(Rectangle hurtBox) {
+    public void setCollisionBox(Rectangle hurtBox) {
         this.hurtBox = hurtBox;
     }
 
-    public Rectangle getHurtBox() {
+    public Rectangle getCollisionBox() {
         return hurtBox;
     }
 

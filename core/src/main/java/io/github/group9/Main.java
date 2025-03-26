@@ -24,8 +24,9 @@ public class Main extends ApplicationAdapter {
         player = new Player();
         batch = new SpriteBatch();
         gameCamera = new GameCamera(640, 360, player.getPosition().x, player.getPosition().y, true);
-        gameMap = new GameMap(gameCamera.getCamera(), "TEST.tmx");
+        gameMap = new GameMap(gameCamera.getCamera(), "TEST2.tmx");
         gameMap.generateEntitiesForTiles();
+        gameMap.tileMerging();
     }
 
     @Override

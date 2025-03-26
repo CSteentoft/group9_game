@@ -87,7 +87,7 @@ public class Player extends Entity implements ICommonFighter {
 
         entity = new Entity();
         entity.setPosition(new Vector2(-50, 0));
-        entity.setHurtBox(new Rectangle(entity.getPosition().x, entity.getPosition().y + (playerHeight * -1), playerWidth, playerHeight));
+        entity.setCollisionBox(new Rectangle(entity.getPosition().x, entity.getPosition().y + (playerHeight * -1), playerWidth, playerHeight));
 
 
         animations = new ArrayList<>();
@@ -120,8 +120,8 @@ public class Player extends Entity implements ICommonFighter {
             currentAnimation.setFlip(isFlipped);
         }
 
-        // Update hurtbox position
-        entity.setHurtBox(new Rectangle(entity.getPosition().x + 12, entity.getPosition().y + 38, playerWidth, playerHeight));
+        // Update setCollisionBox position
+        entity.setCollisionBox(new Rectangle(entity.getPosition().x + 12, entity.getPosition().y + 38, playerWidth, playerHeight));
     }
 
     public void render(SpriteBatch batch) {
@@ -130,7 +130,7 @@ public class Player extends Entity implements ICommonFighter {
         }
     }
     public void renderHurtBox(SpriteBatch batch) {
-        rendering.drawCollisionBox(batch, entity.getHurtBox(), 1, 0, 0);
+        rendering.drawCollisionBox(batch, entity.getCollisionBox(), 1, 0, 0);
     }
 
 
