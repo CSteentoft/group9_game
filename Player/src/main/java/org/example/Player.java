@@ -91,11 +91,11 @@ public class Player extends Entity implements ICommonFighter {
 
 
         animations = new ArrayList<>();
-        animations.add(new Rendering("Player_idle.png", 10, 1, entity.getPosition().x, entity.getPosition().y)); // 0 Idle
-        animations.add(new Rendering("Player_run.png", 8, 1, entity.getPosition().x, entity.getPosition().y));   // 1 Run
-        animations.add(new Rendering("Player_jump.png", 6, 1, entity.getPosition().x, entity.getPosition().y));  // 2 Jump
-        animations.add(new Rendering("Player_dash.png", 9, 1, entity.getPosition().x, entity.getPosition().y));  // 3 Dash
-        animations.add(new Rendering("Player_airspin.png", 6, 1, entity.getPosition().x, entity.getPosition().y));  // 4 Double Jump
+        animations.add(new Rendering("player/Player_idle.png", 10, 1, entity.getPosition().x, entity.getPosition().y)); // 0 Idle
+        animations.add(new Rendering("player/Player_run.png", 8, 1, entity.getPosition().x, entity.getPosition().y));   // 1 Run
+        animations.add(new Rendering("player/Player_jump.png", 6, 1, entity.getPosition().x, entity.getPosition().y));  // 2 Jump
+        animations.add(new Rendering("player/Player_dash.png", 9, 1, entity.getPosition().x, entity.getPosition().y));  // 3 Dash
+        animations.add(new Rendering("player/Player_airspin.png", 6, 1, entity.getPosition().x, entity.getPosition().y));  // 4 Double Jump
 
 
         currentAnimation = animations.get(0);  // Default to idle animation

@@ -52,7 +52,7 @@ public class Main extends ApplicationAdapter {
         player.renderHurtBox(batch);
         gameMap.renderAllCollisionBoxes(batch);
 
-        for (Rectangle rectangle : gameMap.getCollisionBoxes()) {
+        /*for (Rectangle rectangle : gameMap.getCollisionBoxes()) {
             if (collisionHandler.checkAABBCollision(player.getHurtBox(), rectangle)){
                 System.out.println("Collision: True");
             }
