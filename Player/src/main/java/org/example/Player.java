@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player extends Entity implements ICommonFighter {
-    protected Entity entity, entityTest;
+    protected Entity entity;
     protected Rendering rendering;
     protected boolean isAttacking = false;
     protected boolean isMoving = false;
@@ -38,7 +38,7 @@ public class Player extends Entity implements ICommonFighter {
     private static final float speed = 200; // Movement speed in units per second (adjust as needed)
 
     private int playerWidth = 24;
-    private int playerHeight = -30;
+    private int playerHeight = 30;
 
     @Override
     public boolean isAlive() {
@@ -87,7 +87,7 @@ public class Player extends Entity implements ICommonFighter {
 
         entity = new Entity();
         entity.setPosition(new Vector2(-50, 0));
-        entity.setCollisionBox(new Rectangle(entity.getPosition().x, entity.getPosition().y + (playerHeight * -1), playerWidth, playerHeight));
+        entity.setCollisionBox(new Rectangle(entity.getPosition().x + 12, entity.getPosition().y + 8, playerWidth, playerHeight));
 
 
         animations = new ArrayList<>();
@@ -121,7 +121,7 @@ public class Player extends Entity implements ICommonFighter {
         }
 
         // Update setCollisionBox position
-        entity.setCollisionBox(new Rectangle(entity.getPosition().x + 12, entity.getPosition().y + 38, playerWidth, playerHeight));
+        entity.setCollisionBox(new Rectangle(entity.getPosition().x + 12, entity.getPosition().y + 8, playerWidth, playerHeight));
     }
 
     public void render(SpriteBatch batch) {
@@ -290,6 +290,9 @@ public class Player extends Entity implements ICommonFighter {
 
     public Vector2 getPosition() {
         return entity.getPosition();
+    }
+    public Rectangle getHurtBox(){
+        return entity.getCollisionBox();
     }
 
     public void dispose() {
