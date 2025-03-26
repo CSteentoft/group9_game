@@ -3,14 +3,13 @@ package io.github.group9;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import org.example.CollisionHandler;
 import org.example.GameCamera;
 import org.example.GameMap;
 import org.example.Player;
+import com.badlogic.gdx.math.Rectangle;
+
 
 public class Main extends ApplicationAdapter {
 
@@ -18,6 +17,7 @@ public class Main extends ApplicationAdapter {
     private Player player;
     private GameCamera gameCamera;
     private GameMap gameMap;
+    private CollisionHandler collisionHandler;
 
     @Override
     public void create() {
@@ -27,6 +27,7 @@ public class Main extends ApplicationAdapter {
         gameMap = new GameMap(gameCamera.getCamera(), "map/TEST2.tmx");
         gameMap.generateEntitiesForTiles();
         gameMap.tileMerging();
+        collisionHandler = new CollisionHandler();
     }
 
     @Override
@@ -50,6 +51,13 @@ public class Main extends ApplicationAdapter {
 
         player.renderHurtBox(batch);
         gameMap.renderAllCollisionBoxes(batch);
+
+        for (Rectangle rectangle : gameMap.getCollisionBoxes()) {
+            if (collisionHandler.checkAABBCollision(player.getHurtBox(), rectangle)){
+                System.out.println("Collision: True");
+            }
+        }
+
 
     }
 

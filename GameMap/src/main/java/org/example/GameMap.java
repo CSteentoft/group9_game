@@ -22,6 +22,7 @@ public class GameMap extends Entity {
     protected Rendering rendering;
     List<Entity> entitiesOld = new ArrayList<>();
     List<Entity> entitiesNew = new ArrayList<>();
+    List<Rectangle> collisionBoxes = new ArrayList<>();
 
     public GameMap(OrthographicCamera camera, String GameMapName) {
         this.camera = camera;
@@ -112,6 +113,13 @@ public class GameMap extends Entity {
     public void GameMapUpdate() {
         mapRenderer.setView(camera);
         mapRenderer.render();
+    }
+    public List<Rectangle> getCollisionBoxes(){
+        collisionBoxes.clear();
+        for (Entity e : entitiesNew) {
+            collisionBoxes.add(e.getCollisionBox());
+        }
+        return collisionBoxes;
     }
     public void dispose() {
         mapRenderer.dispose();

@@ -1,3 +1,5 @@
+package org.example;
+
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
@@ -7,9 +9,11 @@ public class CollisionHandler {
     protected Rectangle collisionBox;
 
     public CollisionHandler() {
+        /*
         hitbox = new Rectangle();
         attackBox = new Rectangle();
         collisionBox = new Rectangle();
+         */
     }
 
     // Basic AABB collision detection
@@ -20,6 +24,9 @@ public class CollisionHandler {
             (A.y + A.height > B.y);
     }
 
+
+
+    /*
     // Check collision with a list of objects
     public boolean checkCollisionWithObjects(Rectangle playerBox, Array<Rectangle> objects) {
         for (Rectangle obj : objects) {
@@ -46,4 +53,6 @@ public class CollisionHandler {
     public boolean checkAttackCollision(Rectangle attackBox, Rectangle enemyBox) {
         return checkAABBCollision(attackBox, enemyBox);
     }
+     */
+
 }
