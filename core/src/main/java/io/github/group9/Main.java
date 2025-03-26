@@ -52,12 +52,19 @@ public class Main extends ApplicationAdapter {
         player.renderHurtBox(batch);
         gameMap.renderAllCollisionBoxes(batch);
 
-        /*for (Rectangle rectangle : gameMap.getCollisionBoxes()) {
-            if (collisionHandler.checkAABBCollision(player.getHurtBox(), rectangle)){
-                System.out.println("Collision: True");
+        for (Rectangle rectangle : gameMap.getCollisionBoxes()) {
+
+            // Instead of returning just a string, we get overlap data too.
+            CollisionResult result = collisionHandler.getCollisionData(player.getHurtBox(), rectangle);
+
+            if (result.collided) {
+                // Move the player by the overlap
+                player.shiftPosition(result.overlapX, result.overlapY);
+
+                // Print direction if desired
+                System.out.println(result.direction);
             }
         }
-
 
     }
 
