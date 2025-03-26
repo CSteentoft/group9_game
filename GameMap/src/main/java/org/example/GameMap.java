@@ -101,7 +101,7 @@ public class GameMap extends Entity {
         }
         entitiesOld.clear();
     }
-    public void renderAllHurtBoxes(SpriteBatch batch) {
+    public void renderAllCollisionBoxes(SpriteBatch batch) {
         for (Entity entity : entitiesNew) {
             renderHurtBox(batch, entity);
         }
