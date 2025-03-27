@@ -1,40 +1,93 @@
 package org.example;
 
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import java.io.Serializable;
-import java.util.UUID;
 
 public class Entity implements Serializable {
-    private final UUID id = UUID.randomUUID();
-    private Vector2 position;
-    private Vector2 velocity;
-    private Rectangle hitbox;
-    private Rectangle oldHitbox;
-    private Rectangle hurtBox;
 
+    private float velocityY, velocityX;
 
-    public String getID() {
-        return id.toString();
+    public float getHeight() {
+        return height;
     }
 
-    public Vector2 getPosition() {
-        return position;
+    public float getWidth() {
+        return width;
     }
 
-    public void setPosition(Vector2 position) {
-        this.position = position;
+    public float getTop() {
+        return top;
     }
 
-    public void setCollisionBox(Rectangle hurtBox) {
-        this.hurtBox = hurtBox;
+    public float getBottom() {
+        return bottom;
     }
 
-    public Rectangle getCollisionBox() {
-        return hurtBox;
+    public float getRight() {
+        return right;
     }
+
+    public float getLeft() {
+        return left;
+    }
+
+    public float getOldTop() {
+        return oldTop;
+    }
+
+    public float getOldBottom() {
+        return oldBottom;
+    }
+
+    public float getOldRight() {
+        return oldRight;
+    }
+
+    public float getOldLeft() {
+        return oldLeft;
+    }
+
+    private float height, width;
+        private float top, bottom, right, left;
+        private float oldTop, oldBottom, oldRight, oldLeft;
+
+        public Entity(float left, float top, float width, float height){
+            this.left = this.oldLeft = left;
+            this.top = this.oldTop = top;
+            this.width = width;
+            this.height = height;
+            this.right = this.oldRight = left + width;
+            this.bottom = this.oldBottom = top + height;
+            velocityX = 0;
+            velocityY = 0;
+
+        }
+
+        public void setTop(float top) {
+            this.top = top;
+        }
+
+        public void setBottom(float bottom) {
+            this.bottom = bottom;
+        }
+
+        public void setRight(float right) {
+            this.right = right;
+        }
+
+        public void setLeft(float left) {
+            this.left = left;
+        }
+
+        public float getVelocityY() {
+            return velocityY;
+        }
+
+        public float getVelocityX() {
+            return velocityX;
+        }
 
 }
+
 
 
 

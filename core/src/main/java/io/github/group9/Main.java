@@ -18,7 +18,7 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void create() {
-        player = new Player();
+        //player = new Player();
         batch = new SpriteBatch();
         gameCamera = new GameCamera(640, 360, player.getPosition().x, player.getPosition().y, true);
         gameMap = new GameMap(gameCamera.getCamera(), "map/TEST2.tmx");
@@ -42,7 +42,7 @@ public class Main extends ApplicationAdapter {
         gameMap.GameMapUpdate();
 
         batch.begin();
-        player.update();
+        //player.update();
         player.render(batch);
         batch.end();
 
@@ -51,16 +51,6 @@ public class Main extends ApplicationAdapter {
 
         for (Rectangle rectangle : gameMap.getCollisionBoxes()) {
 
-            // Instead of returning just a string, we get overlap data too.
-            CollisionResult result = collisionHandler.getCollisionData(player.getHurtBox(), rectangle);
-
-            if (result.collided) {
-                // Move the player by the overlap
-                player.shiftPosition(result.overlapX, result.overlapY);
-
-                // Print direction if desired
-                System.out.println(result.direction);
-            }
         }
 
     }
