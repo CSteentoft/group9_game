@@ -5,6 +5,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import org.example.Entity;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +31,7 @@ public class Player extends Entity implements ICommonFighter {
     private boolean isJumping = false;
     private int jumpCount = 0;
     private boolean isDashing = false;
-    private float velocityY = 0; // Vertical velocity
+    public float velocityY = 0; // Vertical velocity
     private static final float GRAVITY = -1300f; // Acceleration due to gravity -3000
     private static final float JUMP_VELOCITY = 450f; // Initial velocity for the jump
     private static final float FLOOR_Y = -5; // Ground level
@@ -316,5 +318,6 @@ public class Player extends Entity implements ICommonFighter {
     public void dispose() {
         rendering.dispose();  // Dispose of the rendering object (which will dispose of the sprite sheet texture)
     }
+
 
 }

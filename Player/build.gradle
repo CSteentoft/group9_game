@@ -10,6 +10,7 @@ dependencies {
   implementation project(':Common')
   implementation project(':Rend')
 
+
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }

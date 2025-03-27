@@ -9,4 +9,6 @@ include 'Rend'
 include 'GameCamera'
 include 'CollisionSystem'
 include 'GameMap'
+include 'Enemy'
+include 'Weapons'
 
