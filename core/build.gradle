@@ -8,6 +8,7 @@ dependencies {
   implementation project(":GameCamera")
   implementation project(":GameMap")
   implementation project(":CollisionSystem")
+  implementation project(":Rend")
 
   api "com.badlogicgames.ashley:ashley:$ashleyVersion"
   api "com.badlogicgames.box2dlights:box2dlights:$box2dlightsVersion"

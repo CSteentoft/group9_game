@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Intersector;
 import org.example.*;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -15,7 +16,7 @@ public class Main extends ApplicationAdapter {
     private GameCamera gameCamera;
     private GameMap gameMap;
     private CollisionHandler collisionHandler;
-
+    private Rendering rendering;
     @Override
     public void create() {
         player = new Player();
@@ -25,6 +26,8 @@ public class Main extends ApplicationAdapter {
         gameMap.generateEntitiesForTiles();
         gameMap.tileMerging();
         collisionHandler = new CollisionHandler();
+
+        rendering = new Rendering();
     }
 
     @Override
@@ -50,20 +53,57 @@ public class Main extends ApplicationAdapter {
         gameMap.renderAllCollisionBoxes(batch);
 
         for (Rectangle rectangle : gameMap.getCollisionBoxes()) {
+            if (player.getFLOOR_Y() != player.getPosition().y) {
+                player.setFLOOR_Y(-5); // Reset if not standing
+            }
 
-            // Instead of returning just a string, we get overlap data too.
-            CollisionResult result = collisionHandler.getCollisionData(player.getHurtBox(), rectangle);
+            // Check collision between the player’s hurtbox and the obstacle.
+            if (collisionHandler.checkAABBCollision(player.getHurtBox(), rectangle)) {
 
-            if (result.collided) {
-                // Move the player by the overlap
-                player.shiftPosition(result.overlapX, result.overlapY);
+                // Calculate the intersection rectangle (penetration).
+                Rectangle intersection = new Rectangle();
+                Intersector.intersectRectangles(player.getHurtBox(), rectangle, intersection);
 
-                // Print direction if desired
-                System.out.println(result.direction);
+                // First handle vertical collisions, then horizontal
+                if (intersection.width < intersection.height) {
+                    // Resolve horizontally.
+                    if (player.getHurtBox().x < rectangle.x) {
+                        // Player is to the left of the box.
+                        player.setPosition(rectangle.x - player.getHurtBox().width, player.getPosition().y);
+                        player.setVelocityX(0); // Stop horizontal movement
+                    } else {
+                        // Player is to the right of the box.
+                        player.setPosition(rectangle.x + rectangle.width, player.getPosition().y);
+                        player.setVelocityX(0); // Stop horizontal movement
+                    }
+                } else {
+                    // Resolve vertically only if moving vertically.
+
+                    if (player.getVelocityY() > 0) {
+                        // Moving up, check if hitting the ceiling
+                        if (player.getHurtBox().y + player.getHurtBox().height > rectangle.y) {
+                            player.setPosition(player.getPosition().x, rectangle.y - player.getHurtBox().height);
+                            player.setVelocityY(0); // Stop vertical movement (ceiling hit)
+                        }
+                    } else if (player.getVelocityY() < 0) {
+                        // Moving down, check if hitting the ground
+                        if (player.getHurtBox().y < rectangle.y + rectangle.height) {
+                            player.setVelocityY(0); // Stop downward movement
+                            player.setFLOOR_Y(rectangle.y + rectangle.height); // Update floor level
+                            player.setPosition(player.getPosition().x, rectangle.y + rectangle.height); // Place player on top of the box
+                        }
+                    }
+                }
             }
         }
 
+
+
+
+
     }
+
+
 
     @Override
     public void dispose() {

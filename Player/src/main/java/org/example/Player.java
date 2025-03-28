@@ -9,85 +9,24 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player extends Entity implements ICommonFighter {
+public class Player extends Entity {
     protected Entity entity;
     protected Rendering rendering;
-    protected boolean isAttacking = false;
-    protected boolean isMoving = false;
-    protected boolean isDead = false;
-
-    protected int health = 100;
-    protected boolean isTakingDamage = false;
-
-    protected Stats stat = new Stats(1, 1, 1, 1);
-
-    private Rendering currentAnimation;  // Current animation to be displayed
-
-    private List<Rendering> animations; // List to store animations (idle, run, etc.)
-
-    // Jumping variables
+    private Rendering currentAnimation;
+    private List<Rendering> animations;
     private boolean isJumping = false;
-    private int jumpCount = 0;
     private boolean isDashing = false;
-    private float velocityY = 0; // Vertical velocity
-    private static final float GRAVITY = -1300f; // Acceleration due to gravity -3000
-    private static final float JUMP_VELOCITY = 450f; // Initial velocity for the jump
-    private static final float FLOOR_Y = -5; // Ground level
-    private static final float TERMINAL_VELOCITY = -1000f; // Max downward speed
     private boolean isFlipped;
     private static final float speed = 200; // Movement speed in units per second (adjust as needed)
+    private int playerWidth = 30;
+    private int playerHeight = 48;
 
-    private int playerWidth = 24;
-    private int playerHeight = 30;
-
-    @Override
-    public boolean isAlive() {
-        return !isDead;
-    }
-    @Override
-    public void takeDamage(int amount) {
-        if (!isDead) {
-            health -= amount;
-            isTakingDamage = true;
-            if (health <= 0) {
-                health = 0;
-                isDead = true;
-            }
-        }
-    }
-    @Override
-    public void heavyAttack() {}
-    @Override
-    public void lightAttack() {}
-    @Override
-    public void block() {}
-    @Override
-    public void equipWeapon() {}
-    @Override
-    public void dropWeapon() {}
-    @Override
-    public void throwWeapon() {}
-    @Override
-    public Stats getStats() {
-        return stat;
-    }
-    @Override
-    public void setStats(Stats stats) {
-        this.stat = stats;
-    }
-
-//    public Rectangle getHurtbox(){
-//        return entity.getHurtBox();
-//    }
-
-    //Completed
-    //------------------------------------------------------------------------------------------------------------
     public Player() {
         rendering = new Rendering();
 
         entity = new Entity();
-        entity.setPosition(new Vector2(-50, 0));
-        entity.setCollisionBox(new Rectangle(entity.getPosition().x + 12, entity.getPosition().y + 8, playerWidth, playerHeight));
+        entity.setPosition(new Vector2(750, 0));
+        entity.setCollisionBox(new Rectangle(entity.getPosition().x , entity.getPosition().y, playerWidth, playerHeight));
 
 
         animations = new ArrayList<>();
@@ -106,12 +45,8 @@ public class Player extends Entity implements ICommonFighter {
         float deltaTime = Gdx.graphics.getDeltaTime();
 
         handleInput();
-
         if (isJumping) {
             updateJump();
-        }
-        if (isDashing) {
-            updateDash();
         }
         gravity();
 
@@ -125,19 +60,12 @@ public class Player extends Entity implements ICommonFighter {
         updateCollisionBox();
     }
 
-    public void render(SpriteBatch batch) {
-        if (currentAnimation != null) {// Ensure batch is started
-            currentAnimation.render(batch);
-        }
-    }
-    public void renderHurtBox(SpriteBatch batch) {
-        rendering.drawCollisionBox(batch, entity.getCollisionBox(), 1, 0, 0);
-    }
-
 
     public void handleInput() {
         int horizontalInput = 0;
-
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            jump();
+        }
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             horizontalInput -= 1;  // Move left
             isFlipped = true;
@@ -146,32 +74,94 @@ public class Player extends Entity implements ICommonFighter {
             horizontalInput += 1;  // Move right
             isFlipped = false;
         }
+        moveHorizontal(horizontalInput);
 
-        move(horizontalInput);
+    }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
-            dash();
+    public float getVelocityX() {
+        return velocityX;
+    }
+
+    public float getVelocityY() {
+        return velocityY;
+    }
+
+    public void setVelocityX(float velocityX) {
+        this.velocityX = velocityX;
+    }
+
+    public void setVelocityY(float velocityY) {
+        this.velocityY = velocityY;
+    }
+
+    private float velocityX = 0;
+    private float velocityY = 0;
+    // Maximum horizontal speed (in units per second)
+    private static final float kPlayerMaxSpeed = 300.0f;
+
+    // Player input acceleration (in units per second squared)
+    private static final float kPlayerInputAccel = 900.0f;
+
+    // Air friction factor (applied each frame, value between 0 and 1)
+    private static final float kFrictionAir = 1200.0f; // Higher value = faster stopping
+
+
+    public void moveHorizontal(float horizontalInput) {
+        float dt = Gdx.graphics.getDeltaTime(); // delta time for frame independence
+
+        // Apply acceleration based on input
+        velocityX += horizontalInput * kPlayerInputAccel * dt;
+
+        // Clamp speed to prevent exceeding max speed
+        if (Math.abs(velocityX) > kPlayerMaxSpeed) {
+            velocityX = Math.signum(velocityX) * kPlayerMaxSpeed;
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            jump();
+        // Apply deceleration when no input is given
+        if (horizontalInput == 0) {
+            float deceleration = kFrictionAir * dt; // Deceleration force
+            if (Math.abs(velocityX) <= deceleration) {
+                velocityX = 0; // Stop completely when speed is very low
+            } else {
+                velocityX -= Math.signum(velocityX) * deceleration; // Reduce speed smoothly
+            }
+        }
+
+        // Update position
+        float newX = entity.getPosition().x + velocityX * dt;
+        entity.setPosition(new Vector2(newX, entity.getPosition().y));
+    }
+
+
+
+
+
+    public void render(SpriteBatch batch) {
+        if (currentAnimation != null) {// Ensure batch is started
+            currentAnimation.render(batch);
         }
     }
-    @Override
-    public void move(float deltaX) {
-        float deltaTime = Gdx.graphics.getDeltaTime(); // Get deltaTime for smooth movement
-
-        entity.setPosition(new Vector2(entity.getPosition().x + speed * deltaX * deltaTime, entity.getPosition().y));
-
-        if (deltaX == 0 && !isJumping && !isDashing) {
-            // Switch to idle animation if not already idle
-            currentAnimation = animations.get(0);
-        } else if ((deltaX < 0 || deltaX > 0) && !isJumping && !isDashing) {
-            // Switch to running animation
-            currentAnimation = animations.get(1);
-        }
+    public void renderHurtBox(SpriteBatch batch) {
+        rendering.drawCollisionBox(batch, entity.getCollisionBox(), 1, 0, 0);
     }
-    @Override
+    public Vector2 getPosition() {
+        return entity.getPosition();
+    }
+    public Rectangle getHurtBox(){
+        return entity.getCollisionBox();
+    }
+    private void updateCollisionBox() {
+        entity.setCollisionBox(new Rectangle(entity.getPosition().x , entity.getPosition().y, playerWidth, playerHeight));
+    }
+    public void dispose() {
+        rendering.dispose();  // Dispose of the rendering object (which will dispose of the sprite sheet texture)
+    }
+
+    public void setPosition(float posx, float posy){
+        entity.setPosition(new Vector2(posx,posy));
+    }
+    private int jumpCount = 0;
+
     public void jump() {
         if (jumpCount < 2) {
             velocityY = JUMP_VELOCITY;
@@ -213,7 +203,7 @@ public class Player extends Entity implements ICommonFighter {
         else if (jumpCount == 2) {
             float newTime = currentAnimation.getStateTime() + deltaTime;
             // If the airspin animation hasn't finished, keep updating it.
-           if (newTime < currentAnimation.getAnimationDuration()) {
+            if (newTime < currentAnimation.getAnimationDuration()) {
                 currentAnimation.setStateTime(newTime);
             }  else {
                 // Alternative falling animation
@@ -221,7 +211,19 @@ public class Player extends Entity implements ICommonFighter {
             }
         }
     }
+    private static final float GRAVITY = -1300f; // Acceleration due to gravity -3000
+    private static final float JUMP_VELOCITY = 500f; // Initial velocity for the jump
 
+    public float getFLOOR_Y() {
+        return FLOOR_Y;
+    }
+
+    public void setFLOOR_Y(float FLOOR_Y) {
+        this.FLOOR_Y = FLOOR_Y;
+    }
+
+    private float FLOOR_Y = 0; // Ground level
+    private static final float TERMINAL_VELOCITY = -1000f;
     public void gravity(){
         // Apply gravity
         float deltaTime = Gdx.graphics.getDeltaTime();
@@ -246,75 +248,5 @@ public class Player extends Entity implements ICommonFighter {
         }
     }
 
-    private float dashTime = 0f;
-    private static final float DASH_DURATION = 0.25f;
-    private static final float DASH_SPEED = 350f;
-
-    public void dash() {
-        if (!isDashing) {
-            isDashing = true;
-            dashTime = 0f;
-            currentAnimation = animations.get(3); // Dash animation (assumed index 3)
-            currentAnimation.setStateTime(0);      // Start from the beginning
-        }
-    }
-
-    public void updateDash() {
-        float deltaTime = Gdx.graphics.getDeltaTime();
-
-        dashTime += deltaTime;
-
-        if (isFlipped) {
-            entity.getPosition().x -= DASH_SPEED * deltaTime;
-        } else {
-            entity.getPosition().x += DASH_SPEED * deltaTime;
-        }
-
-        // Update dash animation state time and clamp it so that it matches the dash duration.
-        float newStateTime = currentAnimation.getStateTime() + deltaTime;
-        if (newStateTime > DASH_DURATION) {
-            newStateTime = DASH_DURATION;
-        }
-        currentAnimation.setStateTime(newStateTime);
-
-        // End the dash after DASH_DURATION seconds.
-        if ((dashTime >= DASH_DURATION) && isJumping) {
-            isDashing = false;
-            currentAnimation = animations.get(2);
-            currentAnimation.setStateTime(0);
-            System.out.println(isJumping+ "2");
-        } else if (dashTime >= DASH_DURATION) {
-            isDashing = false;
-            currentAnimation = animations.get(2);
-            currentAnimation.setStateTime(0);
-            System.out.println(isJumping+ "1");
-        }
-    }
-
-    public Vector2 getPosition() {
-        return entity.getPosition();
-    }
-    public Rectangle getHurtBox(){
-        return entity.getCollisionBox();
-    }
-
-    private void updateCollisionBox() {
-        entity.setCollisionBox(new Rectangle(
-            entity.getPosition().x + 12,
-            entity.getPosition().y + 8,
-            playerWidth,
-            playerHeight
-        ));
-    }
-
-    public void shiftPosition(float shiftX, float shiftY) {
-        entity.getPosition().add(shiftX, shiftY);
-        updateCollisionBox();
-        isJumping = false;
-    }
-
-    public void dispose() {
-        rendering.dispose();  // Dispose of the rendering object (which will dispose of the sprite sheet texture)
-    }
 
 }
