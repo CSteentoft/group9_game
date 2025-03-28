@@ -18,7 +18,7 @@ public class Player extends Entity {
     private boolean isDashing = false;
     private boolean isFlipped;
     private static final float speed = 200; // Movement speed in units per second (adjust as needed)
-    private int playerWidth = 30;
+    private int playerWidth = 48;
     private int playerHeight = 48;
 
     public Player() {
