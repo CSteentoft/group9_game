@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Intersector;
+import com.sun.org.apache.bcel.internal.generic.FLOAD;
 import org.example.*;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -53,10 +54,13 @@ public class Main extends ApplicationAdapter {
         gameMap.renderAllCollisionBoxes(batch);
 
 
-
-        if (player.getFLOOR_Y() != player.getHurtBox().y - player.getYOffset()) {
+        //Right
+        if ((player.getFLOOR_Y() == player.getHurtBox().y - player.getYOffset()) &&
+            (player.getHurtBox().x + player.getHurtBox().width < x_left) ||
+            (player.getHurtBox().x + player.getHurtBox().width > x_right)) {
             player.setFLOOR_Y(-5); // Reset if not standing
         }
+
 
 
         // Process collisions against each obstacle in the game map.
@@ -76,6 +80,7 @@ public class Main extends ApplicationAdapter {
         }
     }
 
+    float x_left, x_right;
 
 
     public void resolveHorizontalCollision(Rectangle rectangle) {
@@ -111,6 +116,9 @@ public class Main extends ApplicationAdapter {
                 player.setFLOOR_Y(rectangle.y + rectangle.height - player.getYOffset());
                 // Position the player on top of the obstacle.
                 player.setPosition(adjustedX, rectangle.y + rectangle.height - player.getYOffset());
+
+                x_left = rectangle.x;
+                x_right = rectangle.x +rectangle.width;
 
             }
         }
