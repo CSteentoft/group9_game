@@ -33,16 +33,16 @@ public class Player extends Entity {
 
     //Horizontal movement
     private static final float kPlayerMaxSpeed = 150.0f; // Maximum horizontal speed
-    private static final float kPlayerInputAccel = 600f; // Player input acceleration
-    private static final float kFrictionAir = 1200.0f; //  // Air friction factor (applied each frame, value between 0 and 1)
+    private static final float kPlayerInputAccel = 500f; // Player input acceleration
+    private static final float kFrictionAir = 600.0f; //  // Air friction factor (applied each frame, value between 0 and 1)
 
     //Jumping
     private int jumpCount = 0; // How many times did the player jump
-    private static final float JUMP_VELOCITY = 500f; // Initial velocity for the jump
+    private static final float JUMP_VELOCITY = 350f; // Initial velocity for the jump
 
     //Gravity
     private static final float TERMINAL_VELOCITY = -1000f; // Maximum downward velocity, that gravity can make due of
-    private static final float GRAVITY = -1300f; // Acceleration due to gravity
+    private static final float GRAVITY = -1200f; // Acceleration due to gravity
 
     public Player(float xPos, float yPos) {
         //Entity
@@ -58,6 +58,7 @@ public class Player extends Entity {
         animations.add(new Rendering("player/Player_jump.png", 6, 1, entity.getPosition().x, entity.getPosition().y));  // 2 Jump
         animations.add(new Rendering("player/Player_dash.png", 9, 1, entity.getPosition().x, entity.getPosition().y));  // 3 Dash
         animations.add(new Rendering("player/Player_airSpin.png", 6, 1, entity.getPosition().x, entity.getPosition().y));  // 4 Double Jump
+        animations.add(new Rendering("player/Player_walk.png", 8, 1, entity.getPosition().x, entity.getPosition().y));   // 5 Walk
 
         currentAnimation = animations.get(0);  // Default to idle animation
         isFlipped = false;

@@ -18,7 +18,7 @@ public class Main extends ApplicationAdapter {
     private Rendering rendering;
     @Override
     public void create() {
-        player = new Player(500, 48);
+        player = new Player( 400, 55);
         batch = new SpriteBatch();
         gameCamera = new GameCamera(640, 360, player.getPosition().x, player.getPosition().y, true);
         gameMap = new GameMap(gameCamera.getCamera(), "map/TEST2.tmx");
