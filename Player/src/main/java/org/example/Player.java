@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player extends Entity {
-
     //Entity
     protected Entity entity;
 
@@ -19,10 +18,9 @@ public class Player extends Entity {
     private Rendering currentAnimation;
     private final List<Rendering> animations;
 
-
     //HurtBox
-    private final int playerWidth = 20;
-    private final int playerHeight = 31;
+    private final int playerWidth = 20; //20
+    private final int playerHeight = 32; //32
     private float xOffset = 14;
     private float yOffset = 7;
 
@@ -34,17 +32,15 @@ public class Player extends Entity {
     private float velocityY = 0; // Current y velocity
 
     //Horizontal movement
-    private static final float kPlayerMaxSpeed = 300.0f; // Maximum horizontal speed
-    private static final float kPlayerInputAccel = 900.0f; // Player input acceleration
+    private static final float kPlayerMaxSpeed = 150.0f; // Maximum horizontal speed
+    private static final float kPlayerInputAccel = 600f; // Player input acceleration
     private static final float kFrictionAir = 1200.0f; //  // Air friction factor (applied each frame, value between 0 and 1)
 
     //Jumping
-   // private boolean isJumping;
     private int jumpCount = 0; // How many times did the player jump
     private static final float JUMP_VELOCITY = 500f; // Initial velocity for the jump
 
     //Gravity
-   // private float FLOOR_Y = 0; // Stating ground level
     private static final float TERMINAL_VELOCITY = -1000f; // Maximum downward velocity, that gravity can make due of
     private static final float GRAVITY = -1300f; // Acceleration due to gravity
 
@@ -81,7 +77,6 @@ public class Player extends Entity {
         //Update setCollisionBox position
         updateCollisionBox();
 
-       // System.out.println(isJumping);
     }
 
     //Rendering & Animation
@@ -128,7 +123,6 @@ public class Player extends Entity {
         }
     }
 
-
     //Player
     public void setPosition(float posX, float posY){
         entity.setPosition(new Vector2(posX, posY));
@@ -136,7 +130,6 @@ public class Player extends Entity {
     public Vector2 getPosition() {
         return entity.getPosition();
     }
-
 
     //HurtBox
     public float getXOffset() {
@@ -156,7 +149,6 @@ public class Player extends Entity {
         return new Rectangle(entity.getCollisionBox().x, entity.getCollisionBox().y, entity.getCollisionBox().width, entity.getCollisionBox().height);
     }
 
-
     //Input handler
     public void handleInput(float dt) {
         int horizontalInput = 0;
@@ -174,7 +166,6 @@ public class Player extends Entity {
         moveHorizontal(horizontalInput, dt);
 
     }
-
 
     //Velocity
     public float getVelocityX() {
@@ -237,37 +228,18 @@ public class Player extends Entity {
 
     public void updateJump(float dt) {
         if (jumpCount < 2) {
-            //Animation
-            //--------------------------------------------------------------------------------------------------
-            //this is how libgdx calculates frameIndex "int frameIndex = (int)(stateTime / FRAME_DURATION);"
-            //stateTime = how long the animation has been running (like a stopwatch).
-            //FRAME_DURATION = how long each frame is displayed before switching to the next.
-            //frameIndex = which frame should be shown.
             if (jumpCount == 1) {
                 if (velocityY > 0) { // Rising: allow the first two frames only
                     float newTime = currentAnimation.getStateTime() + dt;
                     float maxTime = 2 * currentAnimation.getFRAME_DURATION();
-                    /* if (newTime > 1 * currentAnimation.getFRAME_DURATION()) {
-                        newTime = 1 * currentAnimation.getFRAME_DURATION();
-                    }
-                    currentAnimation.setStateTime(newTime);
-                     */
                     currentAnimation.setStateTime(Math.min(newTime, maxTime));
                 } else {
-                    /*
-                    if (currentAnimation.getStateTime() >= currentAnimation.getAnimationDuration()) {
-                        currentAnimation.setStateTime(currentAnimation.getAnimationDuration());
-                    } else {
-                        currentAnimation.setStateTime(currentAnimation.getStateTime() + dt);
-                    } */
                     currentAnimation.setStateTime(currentAnimation.getStateTime() + dt);
                 }
             }
             else if (jumpCount == 2) {
-               /* float newTime = currentAnimation.getStateTime() + dt;
                 // If the airSpin animation hasn't finished, keep updating it.
                 // Alternative falling animation
-                currentAnimation.setStateTime(Math.min(newTime, currentAnimation.getAnimationDuration())); */
                 currentAnimation.setStateTime(currentAnimation.getStateTime() + dt);
             }
         }
@@ -275,41 +247,21 @@ public class Player extends Entity {
     public void land() {
         jumpCount = 0;  // Reset jumps when landing
         velocityY = 0;
-       // isJumping = false;
+
         // Reset animation to idle
         currentAnimation = animations.get(0);
         currentAnimation.setStateTime(0);
     }
 
-    /*
-    //Gravity
-    public float getFLOOR_Y() {
-        return FLOOR_Y;
-    }
-    public void setFLOOR_Y(float FLOOR_Y) {
-        this.FLOOR_Y = FLOOR_Y;
-    }
-     */
     public void gravity(float dt){
-        // Apply gravity
-        //--------------------------------------------------------------------------------------------------
+
         velocityY += GRAVITY * dt;
 
         // Limit fall speed to TERMINAL_VELOCITY
         if (velocityY < TERMINAL_VELOCITY) {
             velocityY = TERMINAL_VELOCITY;
         }
-
         entity.getPosition().y += velocityY * dt;
 
-        // Ground collision
-        //--------------------------------------------------------------------------------------------------
-        /*
-        if (entity.getPosition().y <= FLOOR_Y) {
-            entity.getPosition().y = FLOOR_Y;
-            velocityY = 0;
-            jumpCount = 0;
-            currentAnimation = animations.get(0);  // Back to idle (or another appropriate animation)
-        } */
     }
 }

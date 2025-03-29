@@ -4,17 +4,6 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class CollisionHandler {
 
-    public CollisionHandler() {
-
-    }
-
-    public boolean checkAABBCollision(Rectangle A, Rectangle B) {
-        return (A.x < B.x + B.width) &&
-            (A.x + A.width > B.x) &&
-            (A.y < B.y + B.height) &&
-            (A.y + A.height > B.y);
-    }
-
     public SweptCollisionResult sweptAABB(Rectangle moving, float dx, float dy, Rectangle staticRect) {
         float xInvEntry, yInvEntry;
         float xInvExit, yInvExit;

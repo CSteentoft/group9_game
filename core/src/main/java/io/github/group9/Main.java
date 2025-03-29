@@ -4,7 +4,6 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Intersector;
 import org.example.*;
 import com.badlogic.gdx.math.Rectangle;
 
@@ -44,8 +43,6 @@ public class Main extends ApplicationAdapter {
 
         gameMap.GameMapUpdate();
 
-
-
         batch.begin();
         player.update();
         player.render(batch);
@@ -54,30 +51,8 @@ public class Main extends ApplicationAdapter {
         player.renderHurtBox(batch);
         gameMap.renderAllCollisionBoxes(batch);
 
-        // updateCurrentFloorYPlayer();
-        //handleCollisions();
         handleCollisionsSwept(Gdx.graphics.getDeltaTime());
 
-    }
-
-    float x_left, x_right;
-
-
-    public void handleCollisions(){
-        for (Rectangle rectangle : gameMap.getCollisionBoxes()) {
-            // Check if the player's hurtbox intersects the current rectangle.
-            if (collisionHandler.checkAABBCollision(player.getHurtBox(), rectangle)) {
-                // Calculate the intersection rectangle to determine penetration depth.
-                Rectangle intersection = new Rectangle();
-                Intersector.intersectRectangles(player.getHurtBox(), rectangle, intersection);
-
-                if (intersection.width < intersection.height) {
-                    resolveHorizontalCollision(rectangle);
-                } else {
-                    resolveVerticalCollision(rectangle);
-                }
-            }
-        }
     }
 
     public void handleCollisionsSwept(float deltaTime) {
@@ -113,7 +88,6 @@ public class Main extends ApplicationAdapter {
                 if (result != null && result.collisionTime < earliestTime) {
                     earliestCollision = result;
                     earliestTime = result.collisionTime;
-                    //collidedRect = rect;
                 }
             }
 
@@ -199,59 +173,9 @@ public class Main extends ApplicationAdapter {
             // Handle ground collision
             if (isGroundCollision) {
                 player.land();
-                Gdx.app.log("COLLISION", "Static ground collision resolved");
             }
         }
     }
-
-
-
-
-    public void resolveHorizontalCollision(Rectangle rectangle) {
-        // Precompute the adjusted y position for the player.
-        float adjustedY = player.getHurtBox().y - player.getYOffset();
-
-        if (player.getHurtBox().x < rectangle.x) {
-            // Collision from the left: place the player to the left of the obstacle.
-            player.setPosition(rectangle.x - player.getHurtBox().width - player.getXOffset(), adjustedY);
-        } else {
-            // Collision from the right: place the player to the right of the obstacle.
-            player.setPosition(rectangle.x + rectangle.width - player.getXOffset(), adjustedY);
-        }
-        // Stop horizontal movement after resolving the collision.
-        player.setVelocityX(0);
-    }
-    public void resolveVerticalCollision(Rectangle rectangle) {
-        // Precompute the adjusted x position for the player.
-        float adjustedX = player.getHurtBox().x - player.getXOffset();
-
-        if (player.getVelocityY() > 0) { // Moving upward
-            // Check if the top of the player's hurtbox exceeds the bottom of the obstacle (ceiling collision).
-            if (player.getHurtBox().y + player.getHurtBox().height > rectangle.y) {
-                player.setPosition(adjustedX, rectangle.y - player.getHurtBox().height - player.getYOffset());
-                player.setVelocityY(0); // Stop upward movement.
-            }
-        } else if (player.getVelocityY() < 0) { // Moving downward
-            // Check if the player's hurtbox collides with the top of the obstacle (ground collision).
-            if (player.getHurtBox().y < rectangle.y + rectangle.height) {
-                player.setVelocityY(0); // Stop downward movement.
-                // Update the floor level for the player (accounting for the yOffset).
-                // player.setFLOOR_Y(rectangle.y + rectangle.height - player.getYOffset());
-                // Position the player on top of the obstacle.
-                player.setPosition(adjustedX, rectangle.y + rectangle.height - player.getYOffset());
-
-                x_left = rectangle.x;
-                x_right = rectangle.x +rectangle.width;
-
-            }
-        }
-    }
-    /*
-    public void updateCurrentFloorYPlayer(){
-        if ((player.getHurtBox().x) < x_left || (player.getHurtBox().x > x_right)) {
-            player.setFLOOR_Y(0 - player.getYOffset()); // Reset if not standing
-        }
-    }*/
 
     @Override
     public void dispose() {
