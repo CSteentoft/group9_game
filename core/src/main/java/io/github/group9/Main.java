@@ -20,7 +20,7 @@ public class Main extends ApplicationAdapter {
     private Rendering rendering;
     @Override
     public void create() {
-        player = new Player();
+        player = new Player(750, 0);
         batch = new SpriteBatch();
         gameCamera = new GameCamera(640, 360, player.getPosition().x, player.getPosition().y, true);
         gameMap = new GameMap(gameCamera.getCamera(), "map/TEST2.tmx");
@@ -53,17 +53,14 @@ public class Main extends ApplicationAdapter {
         player.renderHurtBox(batch);
         gameMap.renderAllCollisionBoxes(batch);
 
+        updateCurrentFloorYPlayer();
+        handleCollisions();
+    }
 
-        //Right
-        if ((player.getFLOOR_Y() == player.getHurtBox().y - player.getYOffset()) &&
-            (player.getHurtBox().x + player.getHurtBox().width < x_left) ||
-            (player.getHurtBox().x + player.getHurtBox().width > x_right)) {
-            player.setFLOOR_Y(-5); // Reset if not standing
-        }
+    float x_left, x_right;
 
 
-
-        // Process collisions against each obstacle in the game map.
+    public void handleCollisions(){
         for (Rectangle rectangle : gameMap.getCollisionBoxes()) {
             // Check if the player's hurtbox intersects the current rectangle.
             if (collisionHandler.checkAABBCollision(player.getHurtBox(), rectangle)) {
@@ -79,10 +76,6 @@ public class Main extends ApplicationAdapter {
             }
         }
     }
-
-    float x_left, x_right;
-
-
     public void resolveHorizontalCollision(Rectangle rectangle) {
         // Precompute the adjusted y position for the player.
         float adjustedY = player.getHurtBox().y - player.getYOffset();
@@ -97,7 +90,6 @@ public class Main extends ApplicationAdapter {
         // Stop horizontal movement after resolving the collision.
         player.setVelocityX(0);
     }
-
     public void resolveVerticalCollision(Rectangle rectangle) {
         // Precompute the adjusted x position for the player.
         float adjustedX = player.getHurtBox().x - player.getXOffset();
@@ -123,7 +115,11 @@ public class Main extends ApplicationAdapter {
             }
         }
     }
-
+    public void updateCurrentFloorYPlayer(){
+        if ((player.getHurtBox().x) < x_left || (player.getHurtBox().x > x_right)) {
+            player.setFLOOR_Y(0 - player.getYOffset()); // Reset if not standing
+        }
+    }
 
     @Override
     public void dispose() {
