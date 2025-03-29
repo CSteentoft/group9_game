@@ -20,9 +20,9 @@ public class GameMap extends Entity {
     private TiledMapTileLayer groundLayer;
     private Entity entity_create;
     protected Rendering rendering;
-    List<Entity> entitiesOld = new ArrayList<>();
-    List<Entity> entitiesNew = new ArrayList<>();
-    List<Rectangle> collisionBoxes = new ArrayList<>();
+    private List<Entity> entitiesOld = new ArrayList<>();
+    private List<Entity> entitiesNew = new ArrayList<>();
+    private List<Rectangle> collisionBoxes = new ArrayList<>();
 
     public GameMap(OrthographicCamera camera, String GameMapName) {
         this.camera = camera;

@@ -52,57 +52,69 @@ public class Main extends ApplicationAdapter {
         player.renderHurtBox(batch);
         gameMap.renderAllCollisionBoxes(batch);
 
-        for (Rectangle rectangle : gameMap.getCollisionBoxes()) {
-            if (player.getFLOOR_Y() != player.getPosition().y) {
-                player.setFLOOR_Y(-5); // Reset if not standing
-            }
 
-            // Check collision between the player’s hurtbox and the obstacle.
-            if (collisionHandler.checkAABBCollision(player.getHurtBox(), rectangle)) {
 
-                // Calculate the intersection rectangle (penetration).
-                Rectangle intersection = new Rectangle();
-                Intersector.intersectRectangles(player.getHurtBox(), rectangle, intersection);
-
-                // First handle vertical collisions, then horizontal
-                if (intersection.width < intersection.height) {
-                    // Resolve horizontally.
-                    if (player.getHurtBox().x < rectangle.x) {
-                        // Player is to the left of the box.
-                        player.setPosition(rectangle.x - player.getHurtBox().width, player.getPosition().y);
-                        player.setVelocityX(0); // Stop horizontal movement
-                    } else {
-                        // Player is to the right of the box.
-                        player.setPosition(rectangle.x + rectangle.width, player.getPosition().y);
-                        player.setVelocityX(0); // Stop horizontal movement
-                    }
-                } else {
-                    // Resolve vertically only if moving vertically.
-
-                    if (player.getVelocityY() > 0) {
-                        // Moving up, check if hitting the ceiling
-                        if (player.getHurtBox().y + player.getHurtBox().height > rectangle.y) {
-                            player.setPosition(player.getPosition().x, rectangle.y - player.getHurtBox().height);
-                            player.setVelocityY(0); // Stop vertical movement (ceiling hit)
-                        }
-                    } else if (player.getVelocityY() < 0) {
-                        // Moving down, check if hitting the ground
-                        if (player.getHurtBox().y < rectangle.y + rectangle.height) {
-                            player.setVelocityY(0); // Stop downward movement
-                            player.setFLOOR_Y(rectangle.y + rectangle.height); // Update floor level
-                            player.setPosition(player.getPosition().x, rectangle.y + rectangle.height); // Place player on top of the box
-                        }
-                    }
-                }
-            }
+        if (player.getFLOOR_Y() != player.getHurtBox().y - player.getYOffset()) {
+            player.setFLOOR_Y(-5); // Reset if not standing
         }
 
 
+        // Process collisions against each obstacle in the game map.
+        for (Rectangle rectangle : gameMap.getCollisionBoxes()) {
+            // Check if the player's hurtbox intersects the current rectangle.
+            if (collisionHandler.checkAABBCollision(player.getHurtBox(), rectangle)) {
+                // Calculate the intersection rectangle to determine penetration depth.
+                Rectangle intersection = new Rectangle();
+                Intersector.intersectRectangles(player.getHurtBox(), rectangle, intersection);
 
-
-
+                if (intersection.width < intersection.height) {
+                    resolveHorizontalCollision(rectangle);
+                } else {
+                    resolveVerticalCollision(rectangle);
+                }
+            }
+        }
     }
 
+
+
+    public void resolveHorizontalCollision(Rectangle rectangle) {
+        // Precompute the adjusted y position for the player.
+        float adjustedY = player.getHurtBox().y - player.getYOffset();
+
+        if (player.getHurtBox().x < rectangle.x) {
+            // Collision from the left: place the player to the left of the obstacle.
+            player.setPosition(rectangle.x - player.getHurtBox().width - player.getXOffset(), adjustedY);
+        } else {
+            // Collision from the right: place the player to the right of the obstacle.
+            player.setPosition(rectangle.x + rectangle.width - player.getXOffset(), adjustedY);
+        }
+        // Stop horizontal movement after resolving the collision.
+        player.setVelocityX(0);
+    }
+
+    public void resolveVerticalCollision(Rectangle rectangle) {
+        // Precompute the adjusted x position for the player.
+        float adjustedX = player.getHurtBox().x - player.getXOffset();
+
+        if (player.getVelocityY() > 0) { // Moving upward
+            // Check if the top of the player's hurtbox exceeds the bottom of the obstacle (ceiling collision).
+            if (player.getHurtBox().y + player.getHurtBox().height > rectangle.y) {
+                player.setPosition(adjustedX, rectangle.y - player.getHurtBox().height - player.getYOffset());
+                player.setVelocityY(0); // Stop upward movement.
+            }
+        } else if (player.getVelocityY() < 0) { // Moving downward
+            // Check if the player's hurtbox collides with the top of the obstacle (ground collision).
+            if (player.getHurtBox().y < rectangle.y + rectangle.height) {
+                player.setVelocityY(0); // Stop downward movement.
+                // Update the floor level for the player (accounting for the yOffset).
+                player.setFLOOR_Y(rectangle.y + rectangle.height - player.getYOffset());
+                // Position the player on top of the obstacle.
+                player.setPosition(adjustedX, rectangle.y + rectangle.height - player.getYOffset());
+
+            }
+        }
+    }
 
 
     @Override

@@ -13,13 +13,11 @@ public class Player extends Entity {
     protected Entity entity;
     protected Rendering rendering;
     private Rendering currentAnimation;
-    private List<Rendering> animations;
+    private final List<Rendering> animations;
     private boolean isJumping = false;
-    private boolean isDashing = false;
     private boolean isFlipped;
-    private static final float speed = 200; // Movement speed in units per second (adjust as needed)
-    private int playerWidth = 48;
-    private int playerHeight = 48;
+    private final int playerWidth = 20;
+    private final int playerHeight = 31;
 
     public Player() {
         rendering = new Rendering();
@@ -39,8 +37,28 @@ public class Player extends Entity {
 
         currentAnimation = animations.get(0);  // Default to idle animation
         isFlipped = false;
-
     }
+
+    public float getXOffset() {
+        return xOffset;
+    }
+
+    public float getYOffset() {
+        return yOffset;
+    }
+
+
+    private float xOffset = 14;
+    private float yOffset = 7;
+
+    private void updateCollisionBox() {
+        // Use custom offset: 14 right, 7 up.
+        entity.setCollisionBox(new Rectangle(entity.getPosition().x + xOffset,
+            entity.getPosition().y + yOffset,
+            playerWidth,
+            playerHeight));
+    }
+
     public void update() {
         float deltaTime = Gdx.graphics.getDeltaTime();
 
@@ -148,11 +166,9 @@ public class Player extends Entity {
         return entity.getPosition();
     }
     public Rectangle getHurtBox(){
-        return entity.getCollisionBox();
+        return new Rectangle(entity.getCollisionBox().x, entity.getCollisionBox().y, entity.getCollisionBox().width, entity.getCollisionBox().height);
     }
-    private void updateCollisionBox() {
-        entity.setCollisionBox(new Rectangle(entity.getPosition().x , entity.getPosition().y, playerWidth, playerHeight));
-    }
+
     public void dispose() {
         rendering.dispose();  // Dispose of the rendering object (which will dispose of the sprite sheet texture)
     }
@@ -203,12 +219,8 @@ public class Player extends Entity {
         else if (jumpCount == 2) {
             float newTime = currentAnimation.getStateTime() + deltaTime;
             // If the airspin animation hasn't finished, keep updating it.
-            if (newTime < currentAnimation.getAnimationDuration()) {
-                currentAnimation.setStateTime(newTime);
-            }  else {
-                // Alternative falling animation
-                currentAnimation.setStateTime(currentAnimation.getAnimationDuration());
-            }
+            // Alternative falling animation
+            currentAnimation.setStateTime(Math.min(newTime, currentAnimation.getAnimationDuration()));
         }
     }
     private static final float GRAVITY = -1300f; // Acceleration due to gravity -3000
@@ -221,6 +233,7 @@ public class Player extends Entity {
     public void setFLOOR_Y(float FLOOR_Y) {
         this.FLOOR_Y = FLOOR_Y;
     }
+
 
     private float FLOOR_Y = 0; // Ground level
     private static final float TERMINAL_VELOCITY = -1000f;
