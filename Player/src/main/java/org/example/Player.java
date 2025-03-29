@@ -39,12 +39,12 @@ public class Player extends Entity {
     private static final float kFrictionAir = 1200.0f; //  // Air friction factor (applied each frame, value between 0 and 1)
 
     //Jumping
-    private boolean isJumping = false; // Is the player currently jumping
+   // private boolean isJumping;
     private int jumpCount = 0; // How many times did the player jump
     private static final float JUMP_VELOCITY = 500f; // Initial velocity for the jump
 
     //Gravity
-    private float FLOOR_Y = 0; // Stating ground level
+   // private float FLOOR_Y = 0; // Stating ground level
     private static final float TERMINAL_VELOCITY = -1000f; // Maximum downward velocity, that gravity can make due of
     private static final float GRAVITY = -1300f; // Acceleration due to gravity
 
@@ -80,6 +80,8 @@ public class Player extends Entity {
         updateAnimation(deltaTime);
         //Update setCollisionBox position
         updateCollisionBox();
+
+       // System.out.println(isJumping);
     }
 
     //Rendering & Animation
@@ -96,6 +98,30 @@ public class Player extends Entity {
     }
     public void updateAnimation(float dt){
         if (currentAnimation != null) {
+            // Grounded state
+            if (jumpCount == 0) {
+                boolean isMoving = Math.abs(velocityX) > 10f;
+
+                // Force animation reset when landing
+                if (currentAnimation != animations.get(0) && currentAnimation != animations.get(1)) {
+                    currentAnimation = isMoving ? animations.get(1) : animations.get(0);
+                    currentAnimation.setStateTime(0);
+                }
+                // Regular transition
+                else {
+                    currentAnimation = isMoving ? animations.get(1) : animations.get(0);
+                }
+            }
+            // Airborne state
+            else {
+                if (jumpCount == 1 && velocityY > 0) {
+                    currentAnimation = animations.get(2); // Rising jump
+                } else {
+                    currentAnimation = animations.get(4); // Falling/Double jump
+                }
+            }
+
+            // Update animation frame
             currentAnimation.setPosition(entity.getPosition().x, entity.getPosition().y);
             currentAnimation.setStateTime(currentAnimation.getStateTime() + dt);
             currentAnimation.setFlip(isFlipped);
@@ -119,7 +145,7 @@ public class Player extends Entity {
     public float getYOffset() {
         return yOffset;
     }
-    private void updateCollisionBox() {
+    public void updateCollisionBox() {
         entity.setCollisionBox(new Rectangle(
             entity.getPosition().x + xOffset,
             entity.getPosition().y + yOffset,
@@ -197,19 +223,20 @@ public class Player extends Entity {
         if (jumpCount < 2) {
             velocityY = JUMP_VELOCITY;
             jumpCount++;
-            isJumping = true;
+          //  isJumping = true;
 
             if(jumpCount == 1){ // Normal Jump
                 currentAnimation = animations.get(2);
             } else if( jumpCount == 2){ // Double Jump
                 currentAnimation = animations.get(4);
             }
-
             currentAnimation.setStateTime(0);
         }
     }
+
+
     public void updateJump(float dt) {
-        if (isJumping) {
+        if (jumpCount < 2) {
             //Animation
             //--------------------------------------------------------------------------------------------------
             //this is how libgdx calculates frameIndex "int frameIndex = (int)(stateTime / FRAME_DURATION);"
@@ -219,28 +246,42 @@ public class Player extends Entity {
             if (jumpCount == 1) {
                 if (velocityY > 0) { // Rising: allow the first two frames only
                     float newTime = currentAnimation.getStateTime() + dt;
-                    if (newTime > 1 * currentAnimation.getFRAME_DURATION()) {
+                    float maxTime = 2 * currentAnimation.getFRAME_DURATION();
+                    /* if (newTime > 1 * currentAnimation.getFRAME_DURATION()) {
                         newTime = 1 * currentAnimation.getFRAME_DURATION();
                     }
                     currentAnimation.setStateTime(newTime);
+                     */
+                    currentAnimation.setStateTime(Math.min(newTime, maxTime));
                 } else {
+                    /*
                     if (currentAnimation.getStateTime() >= currentAnimation.getAnimationDuration()) {
                         currentAnimation.setStateTime(currentAnimation.getAnimationDuration());
                     } else {
                         currentAnimation.setStateTime(currentAnimation.getStateTime() + dt);
-                    }
+                    } */
+                    currentAnimation.setStateTime(currentAnimation.getStateTime() + dt);
                 }
             }
             else if (jumpCount == 2) {
-                float newTime = currentAnimation.getStateTime() + dt;
+               /* float newTime = currentAnimation.getStateTime() + dt;
                 // If the airSpin animation hasn't finished, keep updating it.
                 // Alternative falling animation
-                currentAnimation.setStateTime(Math.min(newTime, currentAnimation.getAnimationDuration()));
+                currentAnimation.setStateTime(Math.min(newTime, currentAnimation.getAnimationDuration())); */
+                currentAnimation.setStateTime(currentAnimation.getStateTime() + dt);
             }
         }
     }
+    public void land() {
+        jumpCount = 0;  // Reset jumps when landing
+        velocityY = 0;
+       // isJumping = false;
+        // Reset animation to idle
+        currentAnimation = animations.get(0);
+        currentAnimation.setStateTime(0);
+    }
 
-
+    /*
     //Gravity
     public float getFLOOR_Y() {
         return FLOOR_Y;
@@ -248,6 +289,7 @@ public class Player extends Entity {
     public void setFLOOR_Y(float FLOOR_Y) {
         this.FLOOR_Y = FLOOR_Y;
     }
+     */
     public void gravity(float dt){
         // Apply gravity
         //--------------------------------------------------------------------------------------------------
@@ -262,14 +304,12 @@ public class Player extends Entity {
 
         // Ground collision
         //--------------------------------------------------------------------------------------------------
+        /*
         if (entity.getPosition().y <= FLOOR_Y) {
             entity.getPosition().y = FLOOR_Y;
             velocityY = 0;
-            isJumping = false;
             jumpCount = 0;
             currentAnimation = animations.get(0);  // Back to idle (or another appropriate animation)
-        }
+        } */
     }
-
-
 }
