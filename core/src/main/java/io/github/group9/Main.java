@@ -2,14 +2,18 @@ package io.github.group9;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import org.example.*;
 import com.badlogic.gdx.math.Rectangle;
 
 
+
 public class Main extends ApplicationAdapter {
 
+    private Music mohamed;
     private SpriteBatch batch;
     private Player player;
     private GameCamera gameCamera;
@@ -17,6 +21,7 @@ public class Main extends ApplicationAdapter {
     private CollisionHandler collisionHandler;
     @Override
     public void create() {
+        mohamed = Gdx.audio.newMusic(Gdx.files.internal("mohamed.mp3"));
         player = new Player( 400, 90);
         batch = new SpriteBatch();
         gameCamera = new GameCamera(640, 360, player.getPosition().x, player.getPosition().y, true);
@@ -29,6 +34,9 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void render() {
+        // Adjust volume
+        mohamed.setVolume(0.01f);
+        mohamed.play();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         float deltaTime = Gdx.graphics.getDeltaTime();
 
