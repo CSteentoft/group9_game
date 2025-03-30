@@ -34,9 +34,6 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void render() {
-        // Adjust volume
-        mohamed.setVolume(0.01f);
-        mohamed.play();
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         float deltaTime = Gdx.graphics.getDeltaTime();
 
@@ -59,6 +56,12 @@ public class Main extends ApplicationAdapter {
         batch.begin();
         player.render(batch);
         batch.end();
+
+        player.renderHurtBox(batch);
+        gameMap.renderAllCollisionBoxes(batch);
+        // Adjust volume
+        mohamed.setVolume(0.01f);
+        mohamed.play();
     }
 
     public void handleCollisionsSwept(float deltaTime) {
@@ -135,13 +138,12 @@ public class Main extends ApplicationAdapter {
         float resolveX = 0;
         float resolveY = 0;
         boolean isGroundCollision = false;
-        Rectangle collidedRect = null;  // Track the rectangle that caused the collision
+        Rectangle collidedRect = null;
 
-        // Find deepest collision
         for (Rectangle rect : gameMap.getCollisionBoxes()) {
             if (!playerBox.overlaps(rect)) continue;
 
-            // Calculate overlap on both axes
+            // Calculate overlaps (existing code)
             float overlapLeft = playerBox.x + playerBox.width - rect.x;
             float overlapRight = rect.x + rect.width - playerBox.x;
             float overlapTop = playerBox.y + playerBox.height - rect.y;
@@ -151,34 +153,32 @@ public class Main extends ApplicationAdapter {
             float minY = Math.min(overlapTop, overlapBottom);
             float depth = Math.min(minX, minY);
 
-            // Track deepest collision
             if (depth > maxOverlap) {
                 maxOverlap = depth;
-                collidedRect = rect;  // Save the rectangle that caused the collision
+                collidedRect = rect;
 
-                // Determine resolution direction
                 if (minX < minY) {
                     resolveX = (overlapLeft < overlapRight) ? -minX : minX;
                     resolveY = 0;
-                    isGroundCollision = false;
                 } else {
                     resolveY = (overlapTop < overlapBottom) ? -minY : minY;
                     resolveX = 0;
-                    isGroundCollision = (overlapTop > overlapBottom); // Ground collision if coming from above
+                    player.updateGroundBounds(collidedRect.x, collidedRect.x + collidedRect.width);
                 }
             }
         }
 
         if (maxOverlap > 0) {
-            // Apply position correction
             player.setPosition(
                 player.getPosition().x + resolveX,
                 player.getPosition().y + resolveY
             );
-            //player.updateCollisionBox();
 
-            // Handle ground collision
-            if (isGroundCollision && collidedRect != null) { // Ensure we have a valid collision
+            // NEW: Handle velocity reset for ceiling collisions
+            if (resolveY < 0) {
+                // Collision from below (ceiling) → stop upward velocity
+                player.setVelocityY(0);
+            } else if (resolveY > 0) {
                 player.updateGroundBounds(collidedRect.x, collidedRect.x + collidedRect.width);
                 player.land();
             }
