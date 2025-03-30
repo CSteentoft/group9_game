@@ -29,11 +29,17 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void render() {
-        // Clear the screen.
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        float deltaTime = Gdx.graphics.getDeltaTime();
 
-        // Update camera first so that rendering uses the latest camera position.
-        if (gameCamera.isFollowingPLayer()){
+        // Update player movement and physics
+        player.update();
+
+        // Handle collisions and adjust player position
+        handleCollisionsSwept(deltaTime);
+
+        // Update camera to follow corrected player position
+        if (gameCamera.isFollowingPLayer()) {
             gameCamera.setCameraPos(player.getPosition().x, player.getPosition().y);
         }
         gameCamera.getCamera().update();
@@ -41,17 +47,10 @@ public class Main extends ApplicationAdapter {
 
         gameMap.GameMapUpdate();
 
+        // Render player at corrected position
         batch.begin();
-        player.update();
         player.render(batch);
         batch.end();
-
-        player.renderHurtBox(batch);
-        gameMap.renderAllCollisionBoxes(batch);
-
-        handleCollisionsSwept(Gdx.graphics.getDeltaTime());
-
-
     }
 
     public void handleCollisionsSwept(float deltaTime) {
@@ -97,7 +96,7 @@ public class Main extends ApplicationAdapter {
                     player.getPosition().x + dx * earliestCollision.collisionTime,
                     player.getPosition().y + dy * earliestCollision.collisionTime
                 );
-                player.updateCollisionBox();
+                //player.updateCollisionBox();
 
                 // Handle collision response
                 if (earliestCollision.normalX != 0) {
@@ -115,6 +114,7 @@ public class Main extends ApplicationAdapter {
 
                 remainingTime *= (1.0f - earliestCollision.collisionTime);
             } else {
+
                 player.updateCollisionBox();
                 remainingTime = 0.0f;
             }
@@ -167,7 +167,7 @@ public class Main extends ApplicationAdapter {
                 player.getPosition().x + resolveX,
                 player.getPosition().y + resolveY
             );
-            player.updateCollisionBox();
+            //player.updateCollisionBox();
 
             // Handle ground collision
             if (isGroundCollision && collidedRect != null) { // Ensure we have a valid collision

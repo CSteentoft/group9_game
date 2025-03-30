@@ -87,7 +87,10 @@ public class Player extends Entity {
 
     //Rendering & Animation
     public void render(SpriteBatch batch) {
-        if (currentAnimation != null) {// Ensure batch is started
+        if (currentAnimation != null) {
+            // Set animation position to current player position before rendering
+            currentAnimation.setPosition(getPosition().x, getPosition().y);
+            currentAnimation.setFlip(isFlipped);
             currentAnimation.render(batch);
         }
     }
@@ -123,7 +126,6 @@ public class Player extends Entity {
             }
 
             // Update animation frame
-            currentAnimation.setPosition(entity.getPosition().x, entity.getPosition().y);
             currentAnimation.setStateTime(currentAnimation.getStateTime() + dt);
             currentAnimation.setFlip(isFlipped);
         }
