@@ -219,7 +219,6 @@ public class Player extends Entity {
     public void jump() {
         if (jumpCount < 2) {
             velocityY = JUMP_VELOCITY;
-            System.out.println(velocityY);
             jumpCount++;
           //  isJumping = true;
 
