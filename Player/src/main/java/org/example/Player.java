@@ -32,17 +32,17 @@ public class Player extends Entity {
     private float velocityY = 0; // Current y velocity
 
     //Horizontal movement
-    private static final float kPlayerMaxSpeed = 150.0f; // Maximum horizontal speed
-    private static final float kPlayerInputAccel = 500f; // Player input acceleration
-    private static final float kFrictionAir = 600.0f; //  // Air friction factor (applied each frame, value between 0 and 1)
+    private static final float kPlayerMaxSpeed = 300.0f; // Maximum horizontal speed
+    private static final float kPlayerInputAccel = 900f; // Player input acceleration
+    private static final float kFrictionAir = 1200.0f; //  // Air friction factor (applied each frame, value between 0 and 1)
 
     //Jumping
     private int jumpCount = 0; // How many times did the player jump
-    private static final float JUMP_VELOCITY = 350f; // Initial velocity for the jump
+    private static final float JUMP_VELOCITY = 500f; // Initial velocity for the jump
 
     //Gravity
     private static final float TERMINAL_VELOCITY = -1000f; // Maximum downward velocity, that gravity can make due of
-    private static final float GRAVITY = -1200f; // Acceleration due to gravity
+    private static final float GRAVITY = -1300f; // Acceleration due to gravity
 
     public Player(float xPos, float yPos) {
         //Entity
@@ -70,13 +70,16 @@ public class Player extends Entity {
         //Handle input
         handleInput(deltaTime);
         //Fix jump animation
-        updateJump(deltaTime);
+        updateJump(deltaTime);;
         //Apply gravity
         gravity(deltaTime);
         //Update animation
         updateAnimation(deltaTime);
         //Update setCollisionBox position
         updateCollisionBox();
+        //Checks if the player is on ground
+        isOnGround();
+
 
     }
 
@@ -214,6 +217,7 @@ public class Player extends Entity {
     public void jump() {
         if (jumpCount < 2) {
             velocityY = JUMP_VELOCITY;
+            System.out.println(velocityY);
             jumpCount++;
           //  isJumping = true;
 
@@ -245,24 +249,37 @@ public class Player extends Entity {
             }
         }
     }
+
+    float xLeft, xRight;
+    boolean onGround = false;
+
     public void land() {
         jumpCount = 0;  // Reset jumps when landing
         velocityY = 0;
+        onGround = true;
 
-        // Reset animation to idle
-        currentAnimation = animations.get(0);
-        currentAnimation.setStateTime(0);
     }
 
-    public void gravity(float dt){
-
-        velocityY += GRAVITY * dt;
-
-        // Limit fall speed to TERMINAL_VELOCITY
-        if (velocityY < TERMINAL_VELOCITY) {
-            velocityY = TERMINAL_VELOCITY;
+    public void updateCurrentFloorYPlayer(float xLeft, float xRight){
+        this.xLeft = xLeft;
+        this.xRight = xRight;
+    }
+    public void isOnGround(){
+        if ((entity.getCollisionBox().x + entity.getCollisionBox().width > xLeft && entity.getCollisionBox().x < xRight) && velocityY == 0) {
+            onGround = true;
+        } else {
+            onGround = false;
         }
-        entity.getPosition().y += velocityY * dt;
+    }
+    public void gravity(float dt){
+        if (!onGround){
+            velocityY += GRAVITY * dt;
 
+            // Limit fall speed to TERMINAL_VELOCITY
+            if (velocityY < TERMINAL_VELOCITY) {
+                velocityY = TERMINAL_VELOCITY;
+            }
+            entity.getPosition().y += velocityY * dt;
+        }
     }
 }

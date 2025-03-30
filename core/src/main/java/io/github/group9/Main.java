@@ -15,10 +15,9 @@ public class Main extends ApplicationAdapter {
     private GameCamera gameCamera;
     private GameMap gameMap;
     private CollisionHandler collisionHandler;
-    private Rendering rendering;
     @Override
     public void create() {
-        player = new Player( 400, 55);
+        player = new Player( 400, 90);
         batch = new SpriteBatch();
         gameCamera = new GameCamera(640, 360, player.getPosition().x, player.getPosition().y, true);
         gameMap = new GameMap(gameCamera.getCamera(), "map/TEST2.tmx");
@@ -26,7 +25,6 @@ public class Main extends ApplicationAdapter {
         gameMap.tileMerging();
         collisionHandler = new CollisionHandler();
 
-        rendering = new Rendering();
     }
 
     @Override
@@ -53,6 +51,7 @@ public class Main extends ApplicationAdapter {
 
         handleCollisionsSwept(Gdx.graphics.getDeltaTime());
 
+
     }
 
     public void handleCollisionsSwept(float deltaTime) {
@@ -61,6 +60,7 @@ public class Main extends ApplicationAdapter {
         float remainingTime = 1.0f;
         int maxIterations = 4;
         int iteration = 0;
+        Rectangle collidedRect = null;
 
         while (remainingTime > 0.0f && iteration < maxIterations) {
             iteration++;
@@ -77,7 +77,6 @@ public class Main extends ApplicationAdapter {
             );
 
             SweptCollisionResult earliestCollision = null;
-            Rectangle collidedRect = null;
             float earliestTime = 1.0f;
 
             // Narrow phase check
@@ -88,6 +87,7 @@ public class Main extends ApplicationAdapter {
                 if (result != null && result.collisionTime < earliestTime) {
                     earliestCollision = result;
                     earliestTime = result.collisionTime;
+                    collidedRect = rect;
                 }
             }
 
@@ -106,18 +106,15 @@ public class Main extends ApplicationAdapter {
                 if (earliestCollision.normalY != 0) {
                     player.setVelocityY(0);
                     // IMPORTANT: Ground detection fix
-                    if (earliestCollision.normalY == 1) { // Collision from below = ground
-                        player.land(); // Reset jump state
+                    if (earliestCollision.normalY == 1) { // Collision from below (ground)
+                        player.updateCurrentFloorYPlayer(collidedRect.x, collidedRect.x + collidedRect.width);
+                        player.land();
                     }
+
                 }
 
                 remainingTime *= (1.0f - earliestCollision.collisionTime);
             } else {
-                // No collision - full movement
-                player.setPosition(
-                    player.getPosition().x + dx,
-                    player.getPosition().y + dy
-                );
                 player.updateCollisionBox();
                 remainingTime = 0.0f;
             }
@@ -130,6 +127,7 @@ public class Main extends ApplicationAdapter {
         float resolveX = 0;
         float resolveY = 0;
         boolean isGroundCollision = false;
+        Rectangle collidedRect = null;  // Track the rectangle that caused the collision
 
         // Find deepest collision
         for (Rectangle rect : gameMap.getCollisionBoxes()) {
@@ -148,6 +146,7 @@ public class Main extends ApplicationAdapter {
             // Track deepest collision
             if (depth > maxOverlap) {
                 maxOverlap = depth;
+                collidedRect = rect;  // Save the rectangle that caused the collision
 
                 // Determine resolution direction
                 if (minX < minY) {
@@ -171,11 +170,13 @@ public class Main extends ApplicationAdapter {
             player.updateCollisionBox();
 
             // Handle ground collision
-            if (isGroundCollision) {
+            if (isGroundCollision && collidedRect != null) { // Ensure we have a valid collision
+                player.updateCurrentFloorYPlayer(collidedRect.x, collidedRect.x + collidedRect.width);
                 player.land();
             }
         }
     }
+
 
     @Override
     public void dispose() {
