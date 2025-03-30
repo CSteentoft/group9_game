@@ -43,6 +43,8 @@ public class Player extends Entity {
     //Gravity
     private static final float TERMINAL_VELOCITY = -1000f; // Maximum downward velocity, that gravity can make due of
     private static final float GRAVITY = -1300f; // Acceleration due to gravity
+    private float xLeft, xRight; // Boundaries of the platform the player is standing on
+    private boolean onGround = false; // Indicates whether the player is currently on the ground
 
     public Player(float xPos, float yPos) {
         //Entity
@@ -249,9 +251,6 @@ public class Player extends Entity {
             }
         }
     }
-
-    float xLeft, xRight;
-    boolean onGround = false;
 
     public void land() {
         jumpCount = 0;  // Reset jumps when landing
