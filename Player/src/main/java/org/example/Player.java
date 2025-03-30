@@ -258,7 +258,7 @@ public class Player extends Entity {
 
     }
 
-    public void updateCurrentFloorYPlayer(float xLeft, float xRight){
+    public void updateGroundBounds(float xLeft, float xRight) {
         this.xLeft = xLeft;
         this.xRight = xRight;
     }

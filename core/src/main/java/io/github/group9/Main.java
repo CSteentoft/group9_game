@@ -107,7 +107,7 @@ public class Main extends ApplicationAdapter {
                     player.setVelocityY(0);
                     // IMPORTANT: Ground detection fix
                     if (earliestCollision.normalY == 1) { // Collision from below (ground)
-                        player.updateCurrentFloorYPlayer(collidedRect.x, collidedRect.x + collidedRect.width);
+                        player.updateGroundBounds(collidedRect.x, collidedRect.x + collidedRect.width);
                         player.land();
                     }
 
@@ -171,7 +171,7 @@ public class Main extends ApplicationAdapter {
 
             // Handle ground collision
             if (isGroundCollision && collidedRect != null) { // Ensure we have a valid collision
-                player.updateCurrentFloorYPlayer(collidedRect.x, collidedRect.x + collidedRect.width);
+                player.updateGroundBounds(collidedRect.x, collidedRect.x + collidedRect.width);
                 player.land();
             }
         }
