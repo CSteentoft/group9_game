@@ -2,38 +2,45 @@ package org.example;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
-
 import io.github.group9.ECSPlugin;
-import org.example.components.MovementComponent;
-import io.github.group9.PositionComponent;
-import org.example.systems.MovementSystem;
+import io.github.group9.components.TagComponent;
+import io.github.group9.components.TransformComponent;
+import io.github.group9.components.CollisionComponent;
 import org.example.systems.PlayerInputSystem;
+import io.github.group9.components.MovementComponent; // your plugin's own movement?
 
-/**
- * Implementation of ECSPlugin that adds player systems and creates a player entity.
- */
 public class PlayerPlugin implements ECSPlugin {
 
     @Override
     public void registerSystems(Engine engine) {
-        // Ashley Systems (from this subproject)
+        // Possibly add PlayerInputSystem, MovementSystem if not already added
         engine.addSystem(new PlayerInputSystem());
-        engine.addSystem(new MovementSystem());
+        // If your MovementSystem is also in the plugin, add it here
+        // e.g. engine.addSystem(new MovementSystem());
     }
 
     @Override
     public void createEntities(Engine engine) {
-        // Create the player entity, add your Position/Movement components, etc.
+        // Create a Player
         Entity player = new Entity();
 
-        PositionComponent pos = new PositionComponent();
-        pos.x = 100;
-        pos.y = 100;
+        TransformComponent transform = new TransformComponent();
+        transform.position.set(100, 100);
+        transform.size.set(32, 32);
+        transform.updateBounds();
+        player.add(transform);
 
+        // Mark it collidable if you want collisions
+        player.add(new CollisionComponent());
+
+        // Tag it as 'player' so core can color it green
+        TagComponent tag = new TagComponent("player");
+        player.add(tag);
+
+        // If your plugin has MovementComponent:
         MovementComponent mov = new MovementComponent();
-        mov.speed = 200; // e.g. 200 units/sec
-
-        player.add(pos);
+        mov.speed = 200;
+        // vx, vy set by PlayerInputSystem
         player.add(mov);
 
         engine.addEntity(player);

@@ -40,7 +40,7 @@ dependencies {
     implementation project(":player")
   }
   if (project.findProject(":enemy") != null) {
-    implementation project(":player")
+    implementation project(":enemy")
   }
   implementation("com.badlogicgames.gdx:gdx-tools:$gdxVersion"){exclude group: 'com.badlogicgames.gdx', module: 'gdx-backend-lwjgl'}
 
