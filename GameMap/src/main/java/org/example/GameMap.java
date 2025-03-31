@@ -22,14 +22,23 @@ public class GameMap extends Entity {
     protected Rendering rendering;
     private List<Entity> entitiesOld = new ArrayList<>();
     private List<Entity> entitiesNew = new ArrayList<>();
+    private List<Entity> entitiesNew2 = new ArrayList<>();
     private List<Rectangle> collisionBoxes = new ArrayList<>();
+    private List<TiledMapTileLayer> layers = new ArrayList<>();
+    private List<Float> layerParallaxX = new ArrayList<>();
 
     public GameMap(OrthographicCamera camera, String GameMapName) {
         this.camera = camera;
         map_stage = new TmxMapLoader().load(GameMapName);
         mapRenderer = new OrthogonalTiledMapRenderer(map_stage);
-        groundLayer = (TiledMapTileLayer) map_stage.getLayers().get(0);
+        groundLayer = (TiledMapTileLayer) map_stage.getLayers().get(2);
         rendering = new Rendering();
+
+
+        for (int i = 0; i < map_stage.getLayers().size(); i++) {
+            layers.add((TiledMapTileLayer) map_stage.getLayers().get(i));
+            layerParallaxX.add(1.0f); // Default to no horizontal parallax
+        }
     }
     public void generateEntitiesForTiles() {
         int width = groundLayer.getWidth();
@@ -102,6 +111,7 @@ public class GameMap extends Entity {
         }
         entitiesOld.clear();
     }
+
     public void renderAllCollisionBoxes(SpriteBatch batch) {
         for (Entity entity : entitiesNew) {
             renderHurtBox(batch, entity);
@@ -110,9 +120,29 @@ public class GameMap extends Entity {
     public void renderHurtBox(SpriteBatch batch, Entity entity) {
         rendering.drawCollisionBox(batch, entity.getCollisionBox(), 0, 0, 1);
     }
+    public void setLayerParallaxX(int layerIndex, float parallaxX){
+        if (layerIndex >= 0 && layerIndex < layerParallaxX.size()) {
+            layerParallaxX.set(layerIndex, parallaxX);
+        }
+    }
     public void GameMapUpdate() {
-        mapRenderer.setView(camera);
-        mapRenderer.render();
+        for (int i = 0; i < layers.size(); i++) {
+            // Create a camera copy for this layer
+            OrthographicCamera layerCamera = new OrthographicCamera(camera.viewportWidth, camera.viewportHeight);
+            layerCamera.position.set(
+                camera.position.x * layerParallaxX.get(i), // Horizontal parallax
+                camera.position.y,             // Y matches main camera (no parallax)
+                0
+            );
+            layerCamera.zoom = camera.zoom;
+            layerCamera.update();
+
+            // Render the layer
+            mapRenderer.setView(layerCamera);
+            mapRenderer.getBatch().begin();
+            mapRenderer.renderTileLayer(layers.get(i));
+            mapRenderer.getBatch().end();
+        }
     }
     public List<Rectangle> getCollisionBoxes(){
         collisionBoxes.clear();

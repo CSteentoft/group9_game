@@ -25,10 +25,17 @@ public class Main extends ApplicationAdapter {
         player = new Player( 400, 90);
         batch = new SpriteBatch();
         gameCamera = new GameCamera(640, 360, player.getPosition().x, player.getPosition().y, true);
-        gameMap = new GameMap(gameCamera.getCamera(), "map/TEST2.tmx");
+        gameMap = new GameMap(gameCamera.getCamera(), "map/New4.tmx");
         gameMap.generateEntitiesForTiles();
         gameMap.tileMerging();
         collisionHandler = new CollisionHandler();
+
+        //gameMap.setLayerParallaxX(2, 1.0f); // Collision Layer
+        //gameMap.setLayerParallaxX(4, 0.9f); // Leafs
+        //gameMap.setLayerParallaxX(0, 0.7f); // Tree back
+        //gameMap.setLayerParallaxX(1, 0.8f); // Tree front
+        //gameMap.setLayerParallaxX(3, 1.0f); // Ground shadow
+
 
     }
 
@@ -60,7 +67,7 @@ public class Main extends ApplicationAdapter {
         player.renderHurtBox(batch);
         gameMap.renderAllCollisionBoxes(batch);
         // Adjust volume
-        mohamed.setVolume(0.01f);
+        mohamed.setVolume(0.00f);
         mohamed.play();
     }
 
