@@ -9,4 +9,7 @@ include 'Rend'
 include 'GameCamera'
 include 'CollisionSystem'
 include 'GameMap'
+include 'Rend:Weapons'
+findProject(':Rend:Weapons')?.name = 'Weapons'
+include 'Weapon'
 

@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 
 public class Rendering {
@@ -14,10 +13,10 @@ public class Rendering {
     private Texture spriteSheet;
     private float stateTime;
     private float frameDuration = 0.066f;
-    private float posX, posY; // Position
-    private TextureRegion[] frames; // Save frames (for flipping, etc.)
-    private boolean flipped; // Current horizontal flip state
-    private ShapeRenderer shapeRenderer; // For drawing collision box
+    private float posX, posY;
+    private TextureRegion[] frames;
+    private boolean flipped;
+    private ShapeRenderer shapeRenderer;
 
     public Rendering(String spriteSheetPath, int frameCols, int frameRows, float x, float y) {
         spriteSheet = new Texture(Gdx.files.internal(spriteSheetPath));
@@ -26,7 +25,6 @@ public class Rendering {
         flipped = false;
         shapeRenderer = new ShapeRenderer();
 
-        // Split the sprite sheet into frames
         TextureRegion[][] tmp = TextureRegion.split(spriteSheet,
             spriteSheet.getWidth() / frameCols,
             spriteSheet.getHeight() / frameRows);
@@ -47,6 +45,11 @@ public class Rendering {
         shapeRenderer = new ShapeRenderer();
     }
 
+    // ADD THIS METHOD TO FIX THE ERROR
+    public void update(float deltaTime) {
+        stateTime += deltaTime;
+    }
+
     public float getAnimationDuration() {
         return animation.getAnimationDuration() - animation.getFrameDuration();
     }
@@ -62,7 +65,7 @@ public class Rendering {
     public void setFlip(boolean flip) {
         if (flip != flipped) {
             for (TextureRegion frame : frames) {
-                frame.flip(true, false);
+                frame.flip(true, false);  // Flip horizontally
             }
             flipped = flip;
         }
@@ -81,13 +84,11 @@ public class Rendering {
         TextureRegion currentFrame = animation.getKeyFrame(stateTime, true);
         batch.draw(currentFrame, posX, posY);
     }
-    public void drawCollisionBox(SpriteBatch batch, Rectangle hurtBox, int red, int green, int blue) {
-        // Set the ShapeRenderer's projection matrix from the SpriteBatch
-        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 
-        // Draw the rectangle using the ShapeRenderer
+    public void drawCollisionBox(SpriteBatch batch, Rectangle hurtBox, int red, int green, int blue) {
+        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(red, green, blue,1);
+        shapeRenderer.setColor(red, green, blue, 1);
         shapeRenderer.rect(hurtBox.x, hurtBox.y, hurtBox.width, hurtBox.height);
         shapeRenderer.end();
     }
@@ -95,5 +96,8 @@ public class Rendering {
     public void dispose() {
         spriteSheet.dispose();
         shapeRenderer.dispose();
+    }
+    public boolean isFlipped() {
+        return flipped;
     }
 }

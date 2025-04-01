@@ -29,6 +29,7 @@ public class PlayerRenderingSystem extends EntitySystem {
             PlayerRenderingComponent prc = prcm.get(e);
             UserEntity ue = uem.get(e);
             if (prc.currentAnimation != null) {
+                prc.currentAnimation.update(deltaTime); // Update animation frame
                 prc.currentAnimation.setPosition(ue.getPosition().x, ue.getPosition().y);
                 prc.currentAnimation.render(batch);
             }
@@ -36,4 +37,3 @@ public class PlayerRenderingSystem extends EntitySystem {
         batch.end();
     }
 }
-
