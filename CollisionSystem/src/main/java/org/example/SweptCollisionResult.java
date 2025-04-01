@@ -1,6 +1,8 @@
 package org.example;
 
-public class SweptCollisionResult {
+import com.badlogic.ashley.core.Component;
+
+public class SweptCollisionResult implements Component {
     public float collisionTime;
     public float normalX;
     public float normalY;

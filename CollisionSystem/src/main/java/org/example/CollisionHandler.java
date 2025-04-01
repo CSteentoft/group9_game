@@ -1,11 +1,12 @@
 package org.example;
 
+import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.math.Rectangle;
 
-public class CollisionHandler {
+public class CollisionHandler extends EntitySystem {
 
     /**
-      Detects collisions between a moving and static rectangle using Swept AABB.
+     Detects collisions between a moving and static rectangle using Swept AABB.
 
      Calculates:
      - Collision Time: When the collision occurs (0.0 = start of movement, 1.0 = end)

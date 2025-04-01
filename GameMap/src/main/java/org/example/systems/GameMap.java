@@ -1,4 +1,4 @@
-package org.example;
+package org.example.systems;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -160,3 +160,4 @@ public class GameMap extends UserEntity {
         mapRenderer.dispose();
     }
 }
+

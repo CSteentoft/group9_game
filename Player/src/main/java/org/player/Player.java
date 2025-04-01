@@ -1,17 +1,19 @@
-package org.example;
+package org.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import org.render.Rendering;
+import org.common.UserEntity;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player extends Entity {
+public class Player extends UserEntity {
     //Entity
-    protected Entity entity;
+    protected UserEntity entity;
 
     //Rendering & Animation
     protected Rendering rendering;
@@ -48,7 +50,7 @@ public class Player extends Entity {
 
     public Player(float xPos, float yPos) {
         //Entity
-        entity = new Entity();
+        entity = new UserEntity();
         entity.setPosition(new Vector2(xPos, yPos));
         entity.setCollisionBox(new Rectangle(entity.getPosition().x , entity.getPosition().y, playerWidth, playerHeight));
 
@@ -129,6 +131,7 @@ public class Player extends Entity {
             currentAnimation.setStateTime(currentAnimation.getStateTime() + dt);
             currentAnimation.setFlip(isFlipped);
         }
+        Gdx.app.log("Player", "Current animation index: " + animations.indexOf(currentAnimation));
     }
 
     //Player

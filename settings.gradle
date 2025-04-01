@@ -3,7 +3,7 @@
 // if you want to temporarily disable a subproject.
 include 'lwjgl3', 'core'
 include 'CommonFighter'
-include 'Player'
+include 'player'
 include 'Common'
 include 'Rend'
 include 'GameCamera'

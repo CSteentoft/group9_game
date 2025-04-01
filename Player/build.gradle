@@ -2,13 +2,17 @@ plugins {
   id 'java'
 }
 
-eclipse.project.name = appName + '-Player'
+eclipse.project.name = appName + '-player'
 
 dependencies {
   api "com.badlogicgames.ashley:ashley:$ashleyVersion"
   implementation project(':CommonFighter')
   implementation project(':Common')
   implementation project(':Rend')
+  implementation project(':GameMap')
+  implementation project(':CollisionSystem')
+  implementation project(':core')
+
 
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
