@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import org.example.components.MovementComponent;
+import io.github.group9.components.MovementComponent;
 
 public class PlayerInputSystem extends EntitySystem {
     private ComponentMapper<MovementComponent> mm = ComponentMapper.getFor(MovementComponent.class);

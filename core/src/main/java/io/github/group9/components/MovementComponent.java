@@ -1,4 +1,4 @@
-package org.example.components;
+package io.github.group9.components;
 
 import com.badlogic.ashley.core.Component;
 
