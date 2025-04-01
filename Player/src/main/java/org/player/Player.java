@@ -102,6 +102,7 @@ public class Player extends UserEntity {
     public void dispose() {
         rendering.dispose();  // Dispose of the rendering object
     }
+
     public void updateAnimation(float dt){
         if (currentAnimation != null) {
             // Grounded state
