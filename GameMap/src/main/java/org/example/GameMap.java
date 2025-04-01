@@ -22,7 +22,6 @@ public class GameMap extends Entity {
     protected Rendering rendering;
     private List<Entity> entitiesOld = new ArrayList<>();
     private List<Entity> entitiesNew = new ArrayList<>();
-    private List<Entity> entitiesNew2 = new ArrayList<>();
     private List<Rectangle> collisionBoxes = new ArrayList<>();
     private List<TiledMapTileLayer> layers = new ArrayList<>();
     private List<Float> layerParallaxX = new ArrayList<>();
@@ -62,51 +61,56 @@ public class GameMap extends Entity {
         }
     }
     public void tileMerging() {
-        // Groups all the entity's that have the same y position
+        // 1. Horizontal merging (your current method)
         Map<Float, List<Entity>> rows = new HashMap<>();
-
-        // Goes through each entity, and assigns it to its corresponding y position
         for (Entity e : entitiesOld) {
             float y = e.getCollisionBox().y;
-
-            // This line ensures that the list exists for the y-coordinate, creating it if necessary
             List<Entity> rowEntities = rows.computeIfAbsent(y, k -> new ArrayList<>());
-
-            // Adds the current entity to the list for its corresponding y-coordinate
             rowEntities.add(e);
         }
 
-        // For each row (y position in the map), sort by x position and merge consecutive entities
-        for (Map.Entry<Float, List<Entity>> entry : rows.entrySet()) {
-            List<Entity> rowEntities = entry.getValue();
-            // Sort entities on the row by their x coordinate
+        List<Rectangle> horizontalMerged = new ArrayList<>();
+        for (List<Entity> rowEntities : rows.values()) {
             rowEntities.sort(Comparator.comparing(e -> e.getCollisionBox().x));
-
-            Rectangle mergedBox = new Rectangle(
-                rowEntities.get(0).getCollisionBox().x,
-                rowEntities.get(0).getCollisionBox().y,
-                rowEntities.get(0).getCollisionBox().width,
-                rowEntities.get(0).getCollisionBox().height
-            );
+            Rectangle mergedBox = new Rectangle(rowEntities.get(0).getCollisionBox());
 
             for (int i = 1; i < rowEntities.size(); i++) {
                 Rectangle current = rowEntities.get(i).getCollisionBox();
-
                 if (mergedBox.x + mergedBox.width == current.x) {
                     mergedBox.width += current.width;
                 } else {
-                    // If there's a gap, store the mergedBox as a new entity
-                    Entity mergedEntity = new Entity();
-                    mergedEntity.setCollisionBox(new Rectangle(mergedBox));
-                    entitiesNew.add(mergedEntity);
-
-                    // The mergedBox is now just the next tile in the row that didn’t connect with the others
+                    horizontalMerged.add(new Rectangle(mergedBox));
                     mergedBox = new Rectangle(current);
                 }
             }
-            // Add the last merged box from this row to the list
+            horizontalMerged.add(new Rectangle(mergedBox));
+        }
+
+        // 2. Vertical merging (new step)
+        horizontalMerged.sort((a, b) -> {
+            if (a.y != b.y) return Float.compare(a.y, b.y);
+            return Float.compare(a.x, b.x);
+        });
+
+        boolean[] merged = new boolean[horizontalMerged.size()];
+        for (int i = 0; i < horizontalMerged.size(); i++) {
+            if (merged[i]) continue;
+            Rectangle current = horizontalMerged.get(i);
+
+            for (int j = i + 1; j < horizontalMerged.size(); j++) {
+                if (merged[j]) continue;
+                Rectangle next = horizontalMerged.get(j);
+
+                // Check if same X, same width, and stacked vertically
+                if (next.x == current.x && next.width == current.width &&
+                    next.y == current.y + current.height) {
+                    current.height += next.height;
+                    merged[j] = true;
+                } else break;
+            }
+
             Entity mergedEntity = new Entity();
-            mergedEntity.setCollisionBox(new Rectangle(mergedBox));
+            mergedEntity.setCollisionBox(new Rectangle(current));
             entitiesNew.add(mergedEntity);
         }
         entitiesOld.clear();
