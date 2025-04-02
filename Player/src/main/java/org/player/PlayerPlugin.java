@@ -34,7 +34,7 @@ public class PlayerPlugin implements ECSPlugin {
 
         // Create the underlying UserEntity (transform)
         UserEntity ue = new UserEntity();
-        ue.setPosition(new com.badlogic.gdx.math.Vector2(0, 0));
+        ue.setPosition(new com.badlogic.gdx.math.Vector2(50, 90));
         ue.setCollisionBox(new com.badlogic.gdx.math.Rectangle(ue.getPosition().x, ue.getPosition().y, 20, 32));
         CoreResources.setPlayerPosition(new Vector2(ue.getPosition().x, ue.getPosition().y));
         playerEntity.add(ue);

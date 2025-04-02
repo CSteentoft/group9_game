@@ -148,6 +148,7 @@ public class GameMap extends UserEntity {
             mapRenderer.renderTileLayer(layers.get(i));
             mapRenderer.getBatch().end();
         }
+
     }
     public List<Rectangle> getCollisionBoxes(){
         collisionBoxes.clear();
@@ -156,6 +157,7 @@ public class GameMap extends UserEntity {
         }
         return collisionBoxes;
     }
+
     public void dispose() {
         mapRenderer.dispose();
     }

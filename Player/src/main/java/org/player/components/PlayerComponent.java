@@ -14,7 +14,34 @@ public class PlayerComponent implements Component {
 
     // State
     public int jumpCount = 0;
-    public boolean onGround = false;
+    public boolean onGround = true;
+
+
+    //HurtBox
+    public final int playerWidth = 20; //20
+    public final int playerHeight = 32; //32
+    public float xOffset = 14;
+    public float yOffset = 7;
+
+    //Input handling
+    private boolean isFlipped;
+
+    //Velocity
+    private float velocityX = 0; // Current x velocity
+    private float velocityY = 0; // Current y velocity
+
+    //Horizontal movement
+    private static final float kPlayerMaxSpeed = 300.0f; // Maximum horizontal speed
+    private static final float kPlayerInputAccel = 900f; // Player input acceleration
+    private static final float kFrictionAir = 1200.0f; //  // Air friction factor (applied each frame, value between 0 and 1)
+
+    //Jumping
+    private static final float JUMP_VELOCITY = 500f; // Initial velocity for the jump
+
+    //Gravity
+    private static final float TERMINAL_VELOCITY = -1000f; // Maximum downward velocity, that gravity can make due of
+    public float GRAVITY = -1300f; // Acceleration due to gravity
+    private float xLeft, xRight; // Boundaries of the platform the player is standing on
 
     // Reference to underlying UserEntity (the transform)
     public UserEntity userEntity;
@@ -24,10 +51,7 @@ public class PlayerComponent implements Component {
     }
 
     // Called when the player lands
-    public void land() {
-        jumpCount = 0;
-        onGround = true;
-    }
+
 }
 
 

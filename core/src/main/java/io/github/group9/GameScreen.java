@@ -5,16 +5,18 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import org.common.Services.ECSPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ServiceLoader;
 
 
 public class GameScreen implements Screen {
     private Engine engine;
+    private List<ServiceLoader<ECSPlugin>> loaders = new ArrayList<>();
 
     @Override
     public void show() {
         engine = new Engine();
-
         // Load ECS plugins (which might be absent if we disable the player module)
         ServiceLoader<ECSPlugin> loader = ServiceLoader.load(ECSPlugin.class);
         int count = 0;

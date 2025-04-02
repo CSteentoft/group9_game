@@ -3,6 +3,8 @@ package org.example.systems;
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import io.github.group9.CoreResources;
 import org.example.components.CollisionComponent;
 import org.example.components.SweptCollisionResult;
 
@@ -13,62 +15,15 @@ import org.example.components.SweptCollisionResult;
 public class CollisionSystem extends EntitySystem {
 
     private final Family family = Family.all(CollisionComponent.class).get();
-    private ImmutableArray<Entity> entities;
 
     @Override
     public void addedToEngine(Engine engine) {
-        entities = engine.getEntitiesFor(family);
+
     }
 
     @Override
     public void update(float deltaTime) {
-        // We'll do a simple double-loop approach:
-        // - For each dynamic entity, check collisions against each static entity
-        for (int i = 0; i < entities.size(); i++) {
-            Entity e1 = entities.get(i);
-            CollisionComponent cc1 = e1.getComponent(CollisionComponent.class);
-            if (cc1 == null) continue;
-
-            // If it's static, skip checking against other static
-            if (cc1.isStatic) continue;
-
-            // This is a dynamic entity => check collisions
-            for (int j = 0; j < entities.size(); j++) {
-                if (i == j) continue; // skip self
-
-                Entity e2 = entities.get(j);
-                CollisionComponent cc2 = e2.getComponent(CollisionComponent.class);
-                if (cc2 == null) continue;
-
-                // We only check dynamic vs. static collisions
-                if (!cc2.isStatic) continue;
-
-                // Perform swept AABB
-                SweptCollisionResult result = sweptAABB(cc1.boundingBox, cc1.dx, cc1.dy, cc2.boundingBox);
-                if (result != null) {
-                    // We have a collision before the end of this frame
-                    // Handle or log it
-                    System.out.println("Collision between dynamic entity " + i
-                        + " and static entity " + j + ": " + result);
-
-                    // Example resolution: Move entity out of collision at time t
-                    float collisionTime = result.time;
-                    // Reposition bounding box to the collision moment
-                    cc1.boundingBox.x += cc1.dx * collisionTime;
-                    cc1.boundingBox.y += cc1.dy * collisionTime;
-
-                    // Optionally zero out velocity along the normal
-                    // e.g. if normalX != 0, we stop dx
-                    // if normalY != 0, we stop dy
-                    if (Math.abs(result.normalX) > 0.5f) {
-                        cc1.dx = 0;
-                    }
-                    if (Math.abs(result.normalY) > 0.5f) {
-                        cc1.dy = 0;
-                    }
-                }
-            }
-        }
+        handleCollisionsSwept(deltaTime);
     }
 
     /**
@@ -151,5 +106,121 @@ public class CollisionSystem extends EntitySystem {
         }
 
         return new SweptCollisionResult(collisionStart, normalX, normalY);
+    }
+
+    public void handleCollisionsSwept(float deltaTime) {
+        resolveStaticCollisions();
+
+        float remainingTime = 1.0f;
+        int maxIterations = 4;
+        int iteration = 0;
+        Rectangle collidedRect = null;
+
+        while (remainingTime > 0.0f && iteration < maxIterations) {
+            iteration++;
+            float dx = CoreResources.getVelocityX() * deltaTime * remainingTime;
+            float dy = CoreResources.getVelocityY() * deltaTime * remainingTime;
+            Rectangle playerBox = CoreResources.getPlayerHurtBox();
+
+            // Broad phase check
+            Rectangle broadPhaseBox = new Rectangle(
+                Math.min(playerBox.x, playerBox.x + dx),
+                Math.min(playerBox.y, playerBox.y + dy),
+                playerBox.width + Math.abs(dx),
+                playerBox.height + Math.abs(dy)
+            );
+
+            SweptCollisionResult earliestCollision = null;
+            float earliestTime = 1.0f;
+
+            // Narrow phase check
+            for (Rectangle rect : CoreResources.getGameMapCollisionBoxes()) {
+                if (!broadPhaseBox.overlaps(rect)) continue;
+
+                SweptCollisionResult result = sweptAABB(playerBox, dx, dy, rect);
+                if (result != null && result.time < earliestTime) { // Changed to .time
+                    earliestCollision = result;
+                    earliestTime = result.time; // Changed to .time
+                    collidedRect = rect;
+                }
+            }
+
+            if (earliestCollision != null) {
+                // Update position using .time
+                CoreResources.setPlayerPosition(new Vector2(
+                    CoreResources.getPlayerPosition().x + dx * earliestCollision.time,
+                    CoreResources.getPlayerPosition().y + dy * earliestCollision.time
+                ));
+
+                if (earliestCollision.normalX != 0) {
+                    CoreResources.setVelocityX(0);
+                }
+                if (earliestCollision.normalY != 0) {
+                    CoreResources.setVelocityY(0);
+                    if (earliestCollision.normalY == 1) {
+                        CoreResources.setXLeft(collidedRect.x);
+                        CoreResources.setXRight(collidedRect.x + collidedRect.width);
+                        CoreResources.setLanded(true);
+                    }
+                }
+
+                remainingTime *= (1.0f - earliestCollision.time); // Changed to .time
+            } else {
+                remainingTime = 0.0f;
+            }
+        }
+    }
+
+    private void resolveStaticCollisions() {
+        Rectangle playerBox = CoreResources.getPlayerHurtBox();
+        float maxOverlap = 0;
+        float resolveX = 0;
+        float resolveY = 0;
+        boolean isGroundCollision = false;
+        Rectangle collidedRect = null;
+
+        for (Rectangle rect : CoreResources.getGameMapCollisionBoxes()) {
+            if (!playerBox.overlaps(rect)) continue;
+
+            // Calculate overlaps (existing code)
+            float overlapLeft = playerBox.x + playerBox.width - rect.x;
+            float overlapRight = rect.x + rect.width - playerBox.x;
+            float overlapTop = playerBox.y + playerBox.height - rect.y;
+            float overlapBottom = rect.y + rect.height - playerBox.y;
+
+            float minX = Math.min(overlapLeft, overlapRight);
+            float minY = Math.min(overlapTop, overlapBottom);
+            float depth = Math.min(minX, minY);
+
+            if (depth > maxOverlap) {
+                maxOverlap = depth;
+                collidedRect = rect;
+
+                if (minX < minY) {
+                    resolveX = (overlapLeft < overlapRight) ? -minX : minX;
+                    resolveY = 0;
+                } else {
+                    resolveY = (overlapTop < overlapBottom) ? -minY : minY;
+                    resolveX = 0;
+                    CoreResources.setXLeft(collidedRect.x);
+                    CoreResources.setXRight(collidedRect.x + collidedRect.width);
+                }
+            }
+        }
+
+        if (maxOverlap > 0) {
+            CoreResources.setPlayerPosition(new Vector2(CoreResources.getPlayerPosition().x + resolveX,
+                CoreResources.getPlayerPosition().y + resolveY));
+
+            // NEW: Handle velocity reset for ceiling collisions
+            if (resolveY < 0) {
+                // Collision from below (ceiling) → stop upward velocity
+                CoreResources.setVelocityY(0);
+            } else if (resolveY > 0) {
+                CoreResources.setXLeft(collidedRect.x);
+                CoreResources.setXRight(collidedRect.x + collidedRect.width);
+                CoreResources.setLanded(true);
+            }
+        }
     }
 }
