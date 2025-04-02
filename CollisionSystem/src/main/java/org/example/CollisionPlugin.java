@@ -18,6 +18,7 @@ public class CollisionPlugin implements ECSPlugin {
     public void registerSystems(Engine engine) {
         engine.addSystem(new CollisionSystem());
         Vector2 getPlayerPosition = CoreResources.getPlayerPosition();
+        Vector2 getEnemyPosition = CoreResources.getEnemyPosition();
        /* if(getPlayerPosition!=null){
             engine.addSystem();
         }*/

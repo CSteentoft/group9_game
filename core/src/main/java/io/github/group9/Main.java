@@ -76,7 +76,7 @@ public class Main extends ApplicationAdapter {
         gameMap.renderAllCollisionBoxes(batch);
 
 
-        mohamed.setVolume(0.00f);
+        mohamed.setVolume(0.10f);
         mohamed.play();
         engine.update(deltaTime);
 

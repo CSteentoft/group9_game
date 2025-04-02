@@ -5,6 +5,8 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import io.github.group9.CoreResources;
+import org.common.UserEntity;
+import org.common.UserEntityComponent;
 import org.example.components.CollisionComponent;
 import org.example.components.SweptCollisionResult;
 
@@ -18,14 +20,12 @@ public class CollisionSystem extends EntitySystem {
 
     @Override
     public void addedToEngine(Engine engine) {
-
     }
 
     @Override
     public void update(float deltaTime) {
         handleCollisionsSwept(deltaTime);
     }
-
     /**
      * Swept AABB detection
      * Translated from your original code in CollisionHandler.
@@ -108,7 +108,7 @@ public class CollisionSystem extends EntitySystem {
         return new SweptCollisionResult(collisionStart, normalX, normalY);
     }
 
-    public void handleCollisionsSwept(float deltaTime) {
+   public void handleCollisionsSwept(float deltaTime) {
         resolveStaticCollisions();
 
         float remainingTime = 1.0f;
@@ -119,6 +119,8 @@ public class CollisionSystem extends EntitySystem {
         while (remainingTime > 0.0f && iteration < maxIterations) {
             iteration++;
             float dx = CoreResources.getVelocityX() * deltaTime * remainingTime;
+            //System.out.println(CoreResources.getVelocityX());
+            //System.out.println(CoreResources.getVelocityY());
             float dy = CoreResources.getVelocityY() * deltaTime * remainingTime;
             Rectangle playerBox = CoreResources.getPlayerHurtBox();
 
@@ -151,9 +153,14 @@ public class CollisionSystem extends EntitySystem {
                     CoreResources.getPlayerPosition().x + dx * earliestCollision.time,
                     CoreResources.getPlayerPosition().y + dy * earliestCollision.time
                 ));
+                //CoreResources.setEnemyPosition(new Vector2(
+                    //CoreResources.getEnemyPosition().x + dx * earliestCollision.time,
+                    //CoreResources.getEnemyPosition().y + dy * earliestCollision.time
+                //));
 
                 if (earliestCollision.normalX != 0) {
-                    CoreResources.setVelocityX(0);
+                    CoreResources.setNewVelocityX(0);
+                    CoreResources.setCollidedX(true);
                 }
                 if (earliestCollision.normalY != 0) {
                     CoreResources.setVelocityY(0);
@@ -170,19 +177,19 @@ public class CollisionSystem extends EntitySystem {
             }
         }
     }
-
-    private void resolveStaticCollisions() {
+  private void resolveStaticCollisions() {
         Rectangle playerBox = CoreResources.getPlayerHurtBox();
+        float minOverlapThreshold = 0.1f; // Ignore overlaps smaller than this threshold
         float maxOverlap = 0;
         float resolveX = 0;
         float resolveY = 0;
-        boolean isGroundCollision = false;
         Rectangle collidedRect = null;
 
+        // Iterate over each collision rectangle
         for (Rectangle rect : CoreResources.getGameMapCollisionBoxes()) {
             if (!playerBox.overlaps(rect)) continue;
 
-            // Calculate overlaps (existing code)
+            // Calculate overlaps for each side
             float overlapLeft = playerBox.x + playerBox.width - rect.x;
             float overlapRight = rect.x + rect.width - playerBox.x;
             float overlapTop = playerBox.y + playerBox.height - rect.y;
@@ -192,7 +199,8 @@ public class CollisionSystem extends EntitySystem {
             float minY = Math.min(overlapTop, overlapBottom);
             float depth = Math.min(minX, minY);
 
-            if (depth > maxOverlap) {
+            // Only consider correction if the overlap is significant
+            if (depth > maxOverlap && depth > minOverlapThreshold) {
                 maxOverlap = depth;
                 collidedRect = rect;
 
@@ -209,12 +217,22 @@ public class CollisionSystem extends EntitySystem {
         }
 
         if (maxOverlap > 0) {
-            CoreResources.setPlayerPosition(new Vector2(CoreResources.getPlayerPosition().x + resolveX,
-                CoreResources.getPlayerPosition().y + resolveY));
+            // Use a larger epsilon if needed to push the player out enough
+            float epsilon = 0.05f;
+            Vector2 currentPosition = CoreResources.getPlayerPosition();
+            //Vector2 currentPosition = CoreResources.getEnemyPosition();
+            // Adjust position: subtract a small offset in the direction of correction
+            CoreResources.setPlayerPosition(new Vector2(
+                currentPosition.x + (resolveX != 0 ? (resolveX - Math.signum(resolveX) * epsilon) : resolveX),
+                currentPosition.y + (resolveY != 0 ? (resolveY - Math.signum(resolveY) * epsilon) : resolveY)
+            ));
 
-            // NEW: Handle velocity reset for ceiling collisions
+            // Immediately update the player's collision box after changing the position
+            // (Assuming you have a method to update the collision box based on the new position.)
+            // e.g., updateCollisionBoxFromPosition(CoreResources.getPlayerPosition());
+
+            // Reset velocities if a vertical collision occurred
             if (resolveY < 0) {
-                // Collision from below (ceiling) → stop upward velocity
                 CoreResources.setVelocityY(0);
             } else if (resolveY > 0) {
                 CoreResources.setXLeft(collidedRect.x);
@@ -223,4 +241,5 @@ public class CollisionSystem extends EntitySystem {
             }
         }
     }
+
 }

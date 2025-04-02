@@ -1,9 +1,9 @@
-package org.player.components;
+package org.enemy.components;
 
 import com.badlogic.ashley.core.Component;
 import org.common.UserEntity;
 
-public class PlayerComponent implements Component {
+public class EnemyComponent implements Component {
     // Movement & physics constants
     public float horizontalAccel = 900f;
     public float frictionAir     = 1200f;
@@ -18,8 +18,8 @@ public class PlayerComponent implements Component {
 
 
     //HurtBox
-    public final int playerWidth = 20; //20
-    public final int playerHeight = 32; //32
+    public final int EnemyWidth = 20; //20
+    public final int EnemyHeight = 32; //32
     public float xOffset = 14;
     public float yOffset = 7;
 
@@ -31,8 +31,8 @@ public class PlayerComponent implements Component {
     private float velocityY = 0; // Current y velocity
 
     //Horizontal movement
-    private static final float kPlayerMaxSpeed = 300.0f; // Maximum horizontal speed
-    private static final float kPlayerInputAccel = 900f; // Player input acceleration
+    private static final float kEnemyMaxSpeed = 300.0f; // Maximum horizontal speed
+    private static final float kEnemyInputAccel = 900f; // Player input acceleration
     private static final float kFrictionAir = 1200.0f; //  // Air friction factor (applied each frame, value between 0 and 1)
 
     //Jumping
@@ -46,7 +46,7 @@ public class PlayerComponent implements Component {
     // Reference to underlying UserEntity (the transform)
     public UserEntity userEntity;
 
-    public PlayerComponent(UserEntity userEntity) {
+    public EnemyComponent(UserEntity userEntity) {
         this.userEntity = userEntity;
     }
 

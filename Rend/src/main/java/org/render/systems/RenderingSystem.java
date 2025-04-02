@@ -1,80 +1,47 @@
 package org.render.systems;
 
-
-import com.badlogic.ashley.core.*;
-import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-
-import com.badlogic.gdx.math.Rectangle;
-import org.render.components.RenderingComponent;
-import org.common.UserEntityComponent;
 import org.common.UserEntity;
+import org.render.components.RenderingComponent;
 
-public class RenderingSystem extends EntitySystem {
-    private final Family family = Family.all(UserEntityComponent.class, RenderingComponent.class).get();
+public class RenderingSystem extends IteratingSystem {
+    private SpriteBatch batch;
+    private ShapeRenderer shapeRenderer;
 
-    private ImmutableArray<Entity> entities;
-
-    private final ComponentMapper<UserEntityComponent> uecm = ComponentMapper.getFor(UserEntityComponent.class);
-    private final ComponentMapper<RenderingComponent> rcm = ComponentMapper.getFor(RenderingComponent.class);
-
-    private final SpriteBatch batch;
-    private final ShapeRenderer shapeRenderer;
-
-    public RenderingSystem(SpriteBatch batch, ShapeRenderer shapeRenderer) {
+    public RenderingSystem(SpriteBatch batch) {
+        // Entities must have both RenderingComponent and UserEntity
+        super(Family.all(RenderingComponent.class, UserEntity.class).get());
         this.batch = batch;
-        this.shapeRenderer = shapeRenderer;
+        shapeRenderer = new ShapeRenderer();
     }
 
     @Override
-    public void addedToEngine(Engine engine) {
-        entities = engine.getEntitiesFor(family);
-    }
+    protected void processEntity(Entity entity, float deltaTime) {
+        RenderingComponent render = entity.getComponent(RenderingComponent.class);
+        UserEntity userEntity = entity.getComponent(UserEntity.class);
 
-    @Override
-    public void update(float deltaTime) {
+        // Update animation time
+        render.stateTime += deltaTime;
+
+        // Get position from UserEntity
+        float posX = userEntity.getPosition().x;
+        float posY = userEntity.getPosition().y;
+
+        // Render the current animation frame at the given position
         batch.begin();
-
-        for (Entity e : entities) {
-            UserEntityComponent uec = uecm.get(e);
-            RenderingComponent rc = rcm.get(e);
-
-            // Update the animation time
-            rc.stateTime += deltaTime;
-
-            // Grab the current frame
-            TextureRegion currentFrame = rc.animation.getKeyFrame(rc.stateTime, true);
-
-            // Position from the userEntity
-            UserEntity userData = uec.userEntity;
-            float x = userData.getPosition().x;
-            float y = userData.getPosition().y;
-
-            // Draw the frame
-            batch.draw(currentFrame, x, y);
-        }
-
+        batch.draw(render.currentAnimation.getKeyFrame(render.stateTime, true), posX, posY);
         batch.end();
+    }
 
-        // OPTIONAL: Debug collision/hurt boxes
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.RED);
 
-        for (Entity e : entities) {
-            UserEntityComponent uec = uecm.get(e);
-            UserEntity userData = uec.userEntity;
-
-            // For example, let's draw the hurt box in red
-            if (userData.getCollisionBox() != null) {
-                Rectangle hb = userData.getCollisionBox();
-                shapeRenderer.rect(hb.x, hb.y, hb.width, hb.height);
-            }
-        }
-        shapeRenderer.end();
+    public void dispose() {
+        shapeRenderer.dispose();
     }
 }
+
 
 

@@ -1,4 +1,4 @@
-package org.player;
+package org.enemy;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
@@ -6,41 +6,41 @@ import com.badlogic.gdx.math.Vector2;
 import io.github.group9.CoreResources;
 import org.common.Services.ECSPlugin;
 import org.common.UserEntity;
-import org.player.components.PlayerComponent;
+import org.enemy.components.EnemyComponent;
 import org.render.components.RenderingComponent;
-import org.player.systems.PlayerSystem;
-import org.player.systems.PlayerRenderingSystem;
+import org.enemy.systems.EnemySystem;
+import org.enemy.systems.EnemyRenderingSystem;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-public class PlayerPlugin implements ECSPlugin {
+public class EnemyPlugin implements ECSPlugin {
 
     // Public no-arg constructor required by ServiceLoader
-    public PlayerPlugin() { }
+    public EnemyPlugin() { }
 
     @Override
     public void registerSystems(Engine engine) {
-        engine.addSystem(new PlayerSystem());
+        engine.addSystem(new EnemySystem());
         // Get the shared SpriteBatch from CoreResources
         SpriteBatch batch = CoreResources.getSpriteBatch();
         if (batch != null) {
-            engine.addSystem(new PlayerRenderingSystem(batch));
+            engine.addSystem(new EnemyRenderingSystem(batch));
         }
     }
 
     @Override
     public void createEntities(Engine engine) {
-        Entity playerEntity = new Entity();
+        Entity enemyEntity = new Entity();
 
         // Create the underlying UserEntity (for position, collision, etc.)
         UserEntity ue = new UserEntity();
         ue.setPosition(new Vector2(50, 90));
         ue.setCollisionBox(new com.badlogic.gdx.math.Rectangle(ue.getPosition().x, ue.getPosition().y, 20, 32));
-        CoreResources.setPlayerPosition(new Vector2(ue.getPosition().x, ue.getPosition().y));
-        playerEntity.add(ue);
+        CoreResources.setEnemyPosition(new Vector2(ue.getPosition().x, ue.getPosition().y));
+        enemyEntity.add(ue);
 
         // Create and add the PlayerComponent (physics, input, etc.)
-        PlayerComponent pc = new PlayerComponent(ue);
-        playerEntity.add(pc);
+        EnemyComponent ec = new EnemyComponent(ue);
+        enemyEntity.add(ec);
 
         // Create and add the RenderingComponent (handles animations)
         RenderingComponent rc = new RenderingComponent();
@@ -52,9 +52,9 @@ public class PlayerPlugin implements ECSPlugin {
         rc.addAnimation("walk", "player/Player_walk.png", 8, 1, 0.088f);
         // Set the default animation (idle)
         rc.setCurrentAnimation("idle");
-        playerEntity.add(rc);
+        enemyEntity.add(rc);
 
-        engine.addEntity(playerEntity);
+        engine.addEntity(enemyEntity);
     }
 }
 

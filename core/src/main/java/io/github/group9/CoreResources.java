@@ -42,6 +42,27 @@ public class CoreResources {
 
     private static Rectangle playerHurtBox;
 
+    public static Rectangle getEnemyHurtBox() {
+        return enemyHurtBox;
+    }
+
+    public static void setEnemyHurtBox(Rectangle enemyHurtBox) {
+        CoreResources.enemyHurtBox = enemyHurtBox;
+    }
+
+    private static Rectangle enemyHurtBox;
+
+    private static Vector2 enemyPosition;
+
+    public static Vector2 getEnemyPosition() {
+        return enemyPosition;
+    }
+
+    public static void setEnemyPosition(Vector2 vec) {
+        enemyPosition = vec;
+
+    }
+
     public static void setSpriteBatch(SpriteBatch spriteBatch) {
         batch = spriteBatch;
     }
@@ -108,6 +129,28 @@ public class CoreResources {
 
     static boolean landed;
 
+    static float newVelocityX = 1;
+
+    public static float getNewVelocityX() {
+        return newVelocityX;
+    }
+
+    public static void setNewVelocityX(float newVelocityX) {
+        CoreResources.newVelocityX = newVelocityX;
+    }
+
+    public static boolean isCollidedX() {
+        return collidedX;
+    }
+
+    public static void setCollidedX(boolean collidedX) {
+        CoreResources.collidedX = collidedX;
+    }
+
+    static boolean collidedX;
+
 }
+
+
 
 

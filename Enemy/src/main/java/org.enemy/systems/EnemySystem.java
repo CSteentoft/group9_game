@@ -1,4 +1,4 @@
-package org.player.systems;
+package org.enemy.systems;
 
 import com.badlogic.ashley.core.*;
 import com.badlogic.ashley.utils.ImmutableArray;
@@ -9,100 +9,65 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import io.github.group9.CoreResources;
 import org.common.UserEntity;
-import org.player.components.PlayerComponent;
-import org.render.components.RenderingComponent;
 import org.render.Rendering;
+import org.render.components.RenderingComponent;
+import org.enemy.components.EnemyComponent;
 
 
-public class PlayerSystem extends EntitySystem {
+public class EnemySystem extends EntitySystem {
     private ImmutableArray<Entity> entities;
-    private final ComponentMapper<PlayerComponent> pcm = ComponentMapper.getFor(PlayerComponent.class);
+    private final ComponentMapper<EnemyComponent> ecm = ComponentMapper.getFor(EnemyComponent.class);
     private final ComponentMapper<RenderingComponent> rcm = ComponentMapper.getFor(RenderingComponent.class);
     private final ComponentMapper<UserEntity> uem = ComponentMapper.getFor(UserEntity.class);
     private Rendering rend = new Rendering();
 
-    PlayerComponent pc;
-    UserEntity ue;
-    RenderingComponent rc;
     SpriteBatch batch = new SpriteBatch();
 
     @Override
     public void addedToEngine(Engine engine) {
-        entities = engine.getEntitiesFor(Family.all(PlayerComponent.class, UserEntity.class, RenderingComponent.class).get());
+        entities = engine.getEntitiesFor(Family.all(EnemyComponent.class, UserEntity.class, RenderingComponent.class).get());
     }
 
     @Override
     public void update(float deltaTime) {
         for (Entity e : entities) {
-            pc = pcm.get(e);
-            ue = uem.get(e);
-            rc = rcm.get(e);
-
-            if (CoreResources.isCollidedX()){
-                col();
-            }
+            EnemyComponent ec = ecm.get(e);
+            UserEntity ue = uem.get(e);
+            RenderingComponent rc = rcm.get(e);
 
             // Update the player's position from CoreResources if needed.
-            ue.setPosition(new Vector2(CoreResources.getPlayerPosition()));
-
+            ue.setPosition(new Vector2(CoreResources.getEnemyPosition()));
 
             // Handle input, jumping, gravity, collision box updates, etc.
-            handleInput(deltaTime, pc, ue);
-            updateJump(deltaTime, pc, ue);
-            gravity(deltaTime, pc, ue);
-            isOnGround(pc, ue);
+            handleInput(deltaTime, ec, ue);
+            updateJump(deltaTime, ec, ue);
+            gravity(deltaTime, ec, ue);
+            isOnGround(ec, ue);
             if (CoreResources.isLanded()) {
-                land(pc, ue);
+                land(ec, ue);
             }
-
-            updateCollisionBox(pc, ue);
-
-            CoreResources.setPlayerPosition(ue.getPosition());
-            CoreResources.setPlayerHurtBox(ue.getCollisionBox());
-
+            updateCollisionBox(ec, ue);
+            CoreResources.setEnemyPosition(ue.getPosition());
+            CoreResources.setEnemyHurtBox(ue.getCollisionBox());
             renderHurtBox(ue);
 
             // Update the animation based on current state.
-            renderHurtBox(ue);
-            updateAnimation(deltaTime, pc, ue, rc);
-
+            updateAnimation(deltaTime, ec, ue, rc);
         }
     }
-    public void col(){
-        ue.setVelocityX(0);
-        CoreResources.setCollidedX(false);
-    }
 
-    private void handleInput(float dt, PlayerComponent pc, UserEntity ue) {
+    private void handleInput(float dt, EnemyComponent ec, UserEntity ue) {
         int horizontalInput = 0;
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            jump(pc, ue);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-            horizontalInput -= 1;  // Move left
-            pc.isFlipped = true;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            horizontalInput += 1;  // Move right
-            pc.isFlipped = false;
-        }
-
-        if (!CoreResources.isCollidedX()) {
-            moveHorizontal(horizontalInput, dt, pc, ue);
-        } else {
-            // Use the velocity set by collision system
-            ue.setVelocityX(CoreResources.getNewVelocityX());
-        }
-        //moveHorizontal(horizontalInput, dt, pc, ue);
+       moveHorizontal(1, dt, ec, ue);
     }
 
-    private void moveHorizontal(float horizontalInput, float dt, PlayerComponent pc, UserEntity ue) {
-        ue.setVelocityX(ue.getVelocityX() + horizontalInput * pc.horizontalAccel * dt);
-        if (Math.abs(ue.getVelocityX()) > pc.maxSpeed) {
-            ue.setVelocityX(Math.signum(ue.getVelocityX()) * pc.maxSpeed);
+    private void moveHorizontal(float horizontalInput, float dt, EnemyComponent ec, UserEntity ue) {
+        ue.setVelocityX(ue.getVelocityX() + horizontalInput * ec.horizontalAccel * dt);
+        if (Math.abs(ue.getVelocityX()) > ec.maxSpeed) {
+            ue.setVelocityX(Math.signum(ue.getVelocityX()) * ec.maxSpeed);
         }
         if (horizontalInput == 0) {
-            float deceleration = pc.frictionAir * dt;
+            float deceleration = ec.frictionAir * dt;
             if (Math.abs(ue.getVelocityX()) <= deceleration) {
                 ue.setVelocityX(0);
             } else {
@@ -113,51 +78,51 @@ public class PlayerSystem extends EntitySystem {
         ue.setPosition(new Vector2(newX, ue.getPosition().y));
     }
 
-    private void jump(PlayerComponent pc, UserEntity ue) {
-        if (pc.jumpCount < 2) {
-            ue.setVelocityY(pc.jumpVelocity);
-            pc.jumpCount++;
+    private void jump(EnemyComponent ec, UserEntity ue) {
+        if (ec.jumpCount < 2) {
+            ue.setVelocityY(ec.jumpVelocity);
+            ec.jumpCount++;
             // Optionally reset animation state time when jump starts.
         }
     }
 
-    private void updateJump(float dt, PlayerComponent pc, UserEntity ue) {
+    private void updateJump(float dt, EnemyComponent ec, UserEntity ue) {
         // Implement additional jump-related logic as needed.
     }
 
-    private void land(PlayerComponent pc, UserEntity ue) {
-        pc.jumpCount = 0;
+    private void land(EnemyComponent ec, UserEntity ue) {
+        ec.jumpCount = 0;
         ue.setVelocityY(0);
-        pc.onGround = true;
+        ec.onGround = true;
         CoreResources.setLanded(false);
     }
 
-    private void isOnGround(PlayerComponent pc, UserEntity ue) {
+    private void isOnGround(EnemyComponent ec, UserEntity ue) {
         if ((ue.getCollisionBox().x + ue.getCollisionBox().width > CoreResources.getXLeft() &&
             ue.getCollisionBox().x < CoreResources.getXRight()) &&
             ue.getVelocityY() == 0) {
-            pc.onGround = true;
+            ec.onGround = true;
         } else {
-            pc.onGround = false;
+            ec.onGround = false;
         }
     }
 
-    private void gravity(float dt, PlayerComponent pc, UserEntity ue) {
-        if (!pc.onGround) {
-            ue.setVelocityY(ue.getVelocityY() + pc.GRAVITY * dt);
-            if (ue.getVelocityY() < pc.terminalVelocity) {
-                ue.setVelocityY(pc.terminalVelocity);
+    private void gravity(float dt, EnemyComponent ec, UserEntity ue) {
+        if (!ec.onGround) {
+            ue.setVelocityY(ue.getVelocityY() + ec.GRAVITY * dt);
+            if (ue.getVelocityY() < ec.terminalVelocity) {
+                ue.setVelocityY(ec.terminalVelocity);
             }
             ue.getPosition().y += ue.getVelocityY() * dt;
         }
     }
 
-    private void updateCollisionBox(PlayerComponent pc, UserEntity ue) {
+    private void updateCollisionBox(EnemyComponent ec, UserEntity ue) {
         ue.setCollisionBox(new Rectangle(
-            ue.getPosition().x + pc.xOffset,
-            ue.getPosition().y + pc.yOffset,
-            pc.playerWidth,
-            pc.playerHeight));
+            ue.getPosition().x + ec.xOffset,
+            ue.getPosition().y + ec.yOffset,
+            ec.EnemyWidth,
+            ec.EnemyHeight));
     }
 
     private void renderHurtBox(UserEntity ue) {
@@ -167,10 +132,18 @@ public class PlayerSystem extends EntitySystem {
         rend.drawCollisionBox(batch, ue.getCollisionBox(), 1, 0, 0);
     }
 
-    private void updateAnimation(float dt, PlayerComponent pc, UserEntity ue, RenderingComponent rc) {
+    /**
+     * Updates the player's current animation based on movement and jump state.
+     * Assumes the following key-to-animation mapping:
+     * - "idle" for idle (index 0)
+     * - "run" for running (index 1)
+     * - "jump" for rising jump (index 2)
+     * - "airSpin" for falling/double jump (index 4)
+     */
+    private void updateAnimation(float dt, EnemyComponent ec, UserEntity ue, RenderingComponent rc) {
         if (rc.currentAnimation != null) {
             // Grounded state
-            if (pc.jumpCount == 0) {
+            if (ec.jumpCount == 0) {
                 boolean isMoving = Math.abs(ue.getVelocityX()) > 10f;
                 // Force animation reset when landing: if current animation is not "idle" or "run"
                 if (!rc.currentAnimation.equals(rc.getAnimation("idle")) &&
@@ -183,7 +156,7 @@ public class PlayerSystem extends EntitySystem {
             }
             // Airborne state
             else {
-                if (pc.jumpCount == 1 && ue.getVelocityY() > 0) {
+                if (ec.jumpCount == 1 && ue.getVelocityY() > 0) {
                     rc.setCurrentAnimation("jump"); // Rising jump
                 } else {
                     rc.setCurrentAnimation("airSpin"); // Falling/Double jump
@@ -193,7 +166,7 @@ public class PlayerSystem extends EntitySystem {
             // Update the animation frame time using the component's stateTime.
             rc.setStateTime(rc.getStateTime() + dt);
             // Set sprite flipping based on the player's current state.
-            rc.setFlip(pc.isFlipped);
+            rc.setFlip(ec.isFlipped);
         }
     }
 

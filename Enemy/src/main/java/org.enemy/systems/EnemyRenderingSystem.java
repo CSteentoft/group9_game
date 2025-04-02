@@ -1,4 +1,4 @@
-package org.player.systems;
+package org.enemy.systems;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
@@ -7,10 +7,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import org.common.UserEntity;
 import org.render.components.RenderingComponent;
 
-public class PlayerRenderingSystem extends IteratingSystem {
+public class EnemyRenderingSystem extends IteratingSystem {
     private SpriteBatch batch;
 
-    public PlayerRenderingSystem(SpriteBatch batch) {
+    public EnemyRenderingSystem(SpriteBatch batch) {
         super(Family.all(RenderingComponent.class, UserEntity.class).get());
         this.batch = batch;
     }
@@ -26,8 +26,17 @@ public class PlayerRenderingSystem extends IteratingSystem {
         float posX = ue.getPosition().x;
         float posY = ue.getPosition().y;
 
-        batch.begin();
+        //batch.begin();
         batch.draw(rc.currentAnimation.getKeyFrame(rc.stateTime, true), posX, posY);
-        batch.end();
+       // batch.end();
     }
+
+
+
+        @Override
+        public void update(float deltaTime) {
+            batch.begin();
+            super.update(deltaTime); // Processes all entities
+            batch.end();
+        }
 }

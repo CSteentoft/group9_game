@@ -1,0 +1,21 @@
+plugins {
+  id 'java'
+}
+
+eclipse.project.name = appName + '-enemy'
+
+dependencies {
+  api "com.badlogicgames.ashley:ashley:$ashleyVersion"
+  implementation project(':CommonFighter')
+  implementation project(':Common')
+  implementation project(':Rend')
+  implementation project(':GameMap')
+  implementation project(':CollisionSystem')
+  implementation project(':core')
+  implementation "com.badlogicgames.ashley:ashley:1.7.4"
+  implementation "com.badlogicgames.gdx:gdx:1.12.1"
+
+  if(enableGraalNative == 'true') {
+    implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
+  }
+}
